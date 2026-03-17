@@ -8,19 +8,21 @@ const CreateReport = () => {
   const [isProcessing, setIsProcessing] = useState(false);
   const [reportData, setReportData] = useState(null);
   const [filledHTML, setFilledHTML] = useState('');
+  const [templates, setTemplates] = useState([]);
+  const [selectedTemplateId, setSelectedTemplateId] = useState('');
   const [interimTranscript, setInterimTranscript] = useState('');
+  
   const recognitionRef = useRef(null);
   const reportRef = useRef(null);
-  const isIntentionalStopRef = useRef(false);
 
-  // Initialize Speech Recognition
+  // Initialize Speech Recognition (Browser Native - Free and Reliable)
   useEffect(() => {
     if ('SpeechRecognition' in window || 'webkitSpeechRecognition' in window) {
       const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
       recognitionRef.current = new SpeechRecognition();
       recognitionRef.current.continuous = true;
       recognitionRef.current.interimResults = true;
-      recognitionRef.current.lang = 'en-IN'; // Better for local accents
+      recognitionRef.current.lang = 'en-IN';
 
       recognitionRef.current.onresult = (event) => {
         let final = '';
@@ -45,43 +47,42 @@ const CreateReport = () => {
 
       recognitionRef.current.onerror = (event) => {
         console.error("Speech recognition error", event.error);
-        if (event.error === 'network') {
-          alert("Network error. Please check your internet connection.");
-        }
         setIsRecording(false);
       };
       
       recognitionRef.current.onend = () => {
-        // If it stops automatically but we still WANT to record, restart IT!
-        if (!isIntentionalStopRef.current && isRecording) {
-          try {
-            recognitionRef.current.start();
-          } catch(e) {
-            console.error("Auto-restart failed", e);
-          }
-        } else {
-          setIsRecording(false);
+        if (isRecording) {
+            try { recognitionRef.current.start(); } catch(e) {}
         }
       };
     }
-  }, [isRecording]); // Re-bind listener context safely
+  }, [isRecording]);
+
+  // Load templates on mount
+  useEffect(() => {
+    const savedTemplates = localStorage.getItem('medvoice_templates');
+    if (savedTemplates) {
+      const parsed = JSON.parse(savedTemplates);
+      setTemplates(parsed);
+      if (parsed.length > 0) {
+        setSelectedTemplateId(parsed[0].id);
+      }
+    }
+  }, []);
 
   const toggleRecording = () => {
     if (isRecording) {
-      isIntentionalStopRef.current = true;
       recognitionRef.current?.stop();
       setIsRecording(false);
       setInterimTranscript('');
     } else {
-      isIntentionalStopRef.current = false;
-      // We no longer clear transcript here to allow "pause/resume"
       setReportData(null);
       setFilledHTML('');
       try {
         recognitionRef.current?.start();
         setIsRecording(true);
       } catch(e) {
-        console.error(e);
+        console.error("Failed to start recognition", e);
       }
     }
   };
@@ -119,79 +120,10 @@ const CreateReport = () => {
   };
 
   const fillTemplate = (data) => {
-    const template = localStorage.getItem('medvoice_template') || `
-      <div style="font-family: 'Times New Roman', Times, serif; color: #000; max-width: 800px; margin: 0 auto; padding: 10px;">
-        <!-- Header Section -->
-        <div style="display: flex; justify-content: center; align-items: center; border-bottom: 3px solid #1a365d; padding-bottom: 15px; margin-bottom: 20px;">
-          <div style="text-align: center;">
-            <h1 style="color: #1a365d; margin: 0; font-size: 28px; font-weight: 800; text-transform: uppercase; letter-spacing: 2px;">JP DIAGNOSTICS CENTRE</h1>
-            <p style="margin: 6px 0 0; font-size: 13px; font-family: Arial, sans-serif; font-weight: bold; color: #4a5568;">ADVANCED IMAGING & RESEARCH INSTITUTE</p>
-            <p style="margin: 3px 0 0; font-size: 12px; font-family: Arial, sans-serif; color: #718096;">123 Healthcare Avenue, Medical District, City - 123456</p>
-            <p style="margin: 3px 0 0; font-size: 12px; font-family: Arial, sans-serif; color: #718096;">Ph: (555) 123-4567 | Email: reports@jpdiagnostics.com</p>
-          </div>
-        </div>
+    const activeTemplate = templates.find(t => t.id === selectedTemplateId);
+    if (!activeTemplate) return;
 
-        <!-- Demographic Details -->
-        <div style="border: 1px solid #cbd5e0; padding: 15px; background-color: #f7fafc; margin-bottom: 25px; font-family: Arial, sans-serif;">
-          <table style="width: 100%; border-collapse: collapse; font-size: 13px;">
-            <tbody>
-              <tr>
-                <td style="padding: 4px 0; width: 50%;"><strong>Patient Name:</strong> <span style="text-transform: uppercase;">{{patient_name}}</span></td>
-                <td style="padding: 4px 0; width: 50%;"><strong>Age / Gender:</strong> {{age}} / {{sex}}</td>
-              </tr>
-              <tr>
-                <td style="padding: 4px 0;"><strong>Referred By:</strong> {{ref_doctor}}</td>
-                <td style="padding: 4px 0;"><strong>Date:</strong> {{date}}</td>
-              </tr>
-              <tr>
-                <td colspan="2" style="padding: 8px 0 4px; border-top: 1px dashed #cbd5e0; margin-top: 5px;">
-                  <strong style="color: #1a365d; font-size: 14px;">INVESTIGATION:</strong> <span style="font-weight: bold; text-transform: uppercase;">{{study}}</span>
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-
-        <!-- Report Main Content -->
-        <div style="margin-bottom: 35px; min-height: 250px;">
-          <h3 style="color: #1a365d; text-align: center; text-decoration: underline; text-underline-offset: 4px; font-size: 18px; margin-bottom: 25px; text-transform: uppercase;">Radiological Report</h3>
-          
-          <div style="line-height: 1.8; font-size: 15px; text-align: justify; padding: 0 10px;">
-            {{reportText}}
-          </div>
-        </div>
-
-        <!-- Impression Box -->
-        <div style="margin-bottom: 50px; font-family: Arial, sans-serif; break-inside: avoid;">
-          <div style="background-color: #ebf8ff; border: 1px solid #bee3f8; border-left: 5px solid #3182ce; padding: 15px 20px;">
-            <h3 style="color: #2b6cb0; margin-top: 0; margin-bottom: 12px; text-transform: uppercase; font-size: 15px; letter-spacing: 1px;">Impression</h3>
-            <p style="margin: 0; font-size: 15px; font-weight: bold; line-height: 1.6; color: #1a365d;">{{impression}}</p>
-          </div>
-        </div>
-
-        <!-- Signatures (pushed to bottom) -->
-        <div style="display: flex; justify-content: space-between; margin-top: 40px; padding: 0 20px; font-family: Arial, sans-serif; break-inside: avoid;">
-          <div style="text-align: center;">
-            <p style="margin: 0; font-size: 14px; font-weight: bold;">Dr. A. Sharma</p>
-            <p style="margin: 3px 0 0; font-size: 12px; color: #4a5568;">MD (Radiodiagnosis)</p>
-            <p style="margin: 2px 0 0; font-size: 12px; color: #718096;">Consultant Radiologist</p>
-          </div>
-          <div style="text-align: center;">
-            <div style="height: 40px;"></div> <!-- Space for signature image if needed later -->
-            <p style="margin: 0; font-size: 14px; font-weight: bold;">Dr. S. Patel</p>
-            <p style="margin: 3px 0 0; font-size: 12px; color: #4a5568;">DMRD, DNB</p>
-            <p style="margin: 2px 0 0; font-size: 12px; color: #718096;">Chief Radiologist</p>
-          </div>
-        </div>
-        
-        <!-- Footer -->
-        <div style="text-align: center; margin-top: 40px; border-top: 1px solid #e2e8f0; padding-top: 15px; font-size: 10px; font-family: Arial, sans-serif; color: #a0aec0; break-inside: avoid;">
-          <p style="margin: 0;">This is a digitally generated report based on AI transcription. Not valid for medico-legal purposes without a physical/digital seal.</p>
-          <p style="margin: 4px 0 0; font-weight: bold; color: #718096;">** Please correlate clinically **</p>
-          <p style="margin: 4px 0 0;">End of Report</p>
-        </div>
-      </div>
-    `;
+    const templateHTML = activeTemplate.html;
 
     // Flatten data for easy replacement
     const flatData = {
@@ -200,11 +132,17 @@ const CreateReport = () => {
       impression: data.impression
     };
 
-    let finalHTML = template;
+    let finalHTML = templateHTML;
+    
+    // Replace known keys
     Object.keys(flatData).forEach(key => {
+      const val = flatData[key] || '';
       const regex = new RegExp(`{{${key}}}`, 'g');
-      finalHTML = finalHTML.replace(regex, flatData[key]);
+      finalHTML = finalHTML.replace(regex, val);
     });
+
+    // Clean up any other {{placeholder}} tags that weren't matched
+    finalHTML = finalHTML.replace(/{{[a-zA-Z0-9_]+}}/g, '');
 
     setFilledHTML(finalHTML);
   };
@@ -249,6 +187,30 @@ const CreateReport = () => {
           <p style={{ color: 'var(--text-muted)', textAlign: 'center', marginBottom: '32px', maxWidth: '300px' }}>
             Click start and begin dictating the patient's radiology findings.
           </p>
+
+          <div style={{ width: '100%', marginBottom: '24px' }}>
+            <label style={{ display: 'block', fontSize: '0.85rem', color: 'var(--text-muted)', marginBottom: '8px' }}>Active Report Template</label>
+            <select 
+              value={selectedTemplateId} 
+              onChange={(e) => setSelectedTemplateId(e.target.value)}
+              className="glass-panel"
+              style={{
+                width: '100%',
+                padding: '12px',
+                backgroundColor: 'rgba(56, 139, 253, 0.05)',
+                border: '1px solid var(--border-color)',
+                borderRadius: '8px',
+                color: '#fff',
+                fontSize: '0.95rem',
+                outline: 'none',
+                cursor: 'pointer'
+              }}
+            >
+              {templates.map(t => (
+                <option key={t.id} value={t.id}>{t.name}</option>
+              ))}
+            </select>
+          </div>
 
           <div style={{ display: 'flex', gap: '16px', width: '100%' }}>
             <button 
