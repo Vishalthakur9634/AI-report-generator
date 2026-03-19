@@ -127,8 +127,8 @@ const CreateReport = () => {
     try {
       // Call our FastAPI backend
       // Clean up the URL (remove trailing slash and spaces)
-      let API_URL = (import.meta.env.VITE_API_URL || '').trim().replace(/\/$/, '');
-      // Prevent accidental double /api if user added it to the env variable
+      // Fallback to the known working Render URL if the environment variable is missing
+      let API_URL = (import.meta.env.VITE_API_URL || 'https://ai-report-generator-backend.onrender.com').trim().replace(/\/$/, '');
       if (API_URL.endsWith('/api')) API_URL = API_URL.slice(0, -4);
       
       const response = await fetch(`${API_URL}/api/generate_report`, {
