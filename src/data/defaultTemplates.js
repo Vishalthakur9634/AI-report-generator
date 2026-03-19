@@ -2,134 +2,139 @@ export const defaultTemplates = [
     {
       id: 'usg-template',
       name: 'Ultrasound (USG)',
-      html: `<div style="font-family: 'Inter', 'Segoe UI', Arial, sans-serif; color: #1a202c; max-width: 800px; margin: 0 auto; padding: 0; background: #fff; line-height: 1.5;">
+      html: `<div style="font-family: 'Inter', 'Segoe UI', Arial, sans-serif; color: #1a202c; max-width: 850px; margin: 0 auto; padding: 0; background: #fff; line-height: 1.4; border: 1px solid #e2e8f0;">
   <!-- Header -->
-  <div style="background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%); color: white; padding: 30px; border-bottom: 5px solid #fbd38d;">
-    <div style="display: flex; justify-content: space-between; align-items: flex-start;">
-      <div>
-        <h1 style="margin: 0; font-size: 28px; font-weight: 800; letter-spacing: 1px;">JP DIAGNOSTICS</h1>
-        <p style="margin: 5px 0 0 0; font-size: 14px; text-transform: uppercase; letter-spacing: 2px;">Radiology | Pathology</p>
-        <p style="margin: 2px 0 0 0; font-size: 12px; opacity: 0.9;">WE DIAGNOSE RIGHT</p>
+  <div style="padding: 20px 40px; border-bottom: 4px solid #fbd38d; background: #fff;">
+    <div style="display: flex; justify-content: space-between; align-items: center;">
+      <div style="display: flex; align-items: center; gap: 20px;">
+        <div style="width: 70px; height: 70px; border: 2px solid #1e3a8a; border-radius: 50%; display: flex; alignItems: center; justifyContent: center; color: #1e3a8a; font-weight: 800; font-size: 24px;">JP</div>
+        <div>
+          <h1 style="margin: 0; font-size: 32px; font-weight: 800; color: #1e3a8a; letter-spacing: 1px;">JP DIAGNOSTICS</h1>
+          <p style="margin: 0; font-size: 14px; text-transform: uppercase; letter-spacing: 3px; color: #64748b; font-weight: 600;">RADIOLOGY | PATHOLOGY</p>
+          <div style="background: #ed8936; color: white; padding: 2px 10px; display: inline-block; font-size: 11px; font-weight: 700; border-radius: 2px; margin-top: 5px;">WE DIAGNOSE RIGHT</div>
+        </div>
       </div>
-      <div style="text-align: right; font-size: 11px;">
-        <p style="margin: 0;">+91-7579470000 | +91-7579430000</p>
-        <p style="margin: 2px 0;">info@jpdiagnostics.in</p>
-        <p style="margin: 2px 0;">JSR Tower, Goverdhan Crossing, NH-19, Mathura</p>
+      <div style="text-align: right; font-size: 11px; color: #4a5568;">
+        <p style="margin: 0; display: flex; align-items: center; justify-content: flex-end; gap: 5px;"><span style="color: #1e3a8a;">📞</span> +91-7579470000 | +91-7579430000</p>
+        <p style="margin: 2px 0;">✉️ info@jpdiagnostics.in</p>
+        <p style="margin: 2px 0;">📍 JSR Tower, Goverdhan Crossing, NH-19, Mathura</p>
       </div>
     </div>
   </div>
 
   <!-- Patient Info Grid -->
-  <div style="padding: 25px; background: #f8fafc; border-bottom: 1px solid #e2e8f0;">
-    <table style="width: 100%; border-collapse: collapse; font-size: 13px;">
+  <div style="padding: 15px 40px; background: #fdfcfb; border-bottom: 1px solid #edf2f7; font-size: 12px;">
+    <table style="width: 100%; border-collapse: collapse;">
       <tr>
-        <td style="padding: 4px 0; width: 50%;"><strong>Patient ID:</strong> {{uhid}}</td>
-        <td style="padding: 4px 0; text-align: right;"><strong>Reg. Date:</strong> {{date}}</td>
+        <td style="padding: 3px 0; width: 35%;"><strong>Patient ID:</strong> {{uhid}}</td>
+        <td style="padding: 3px 0; width: 35%;"><strong>UHID:</strong> {{uhid}}</td>
+        <td style="padding: 3px 0; text-align: right;"><strong>Reg. Date:</strong> {{date}}</td>
       </tr>
       <tr>
-        <td style="padding: 4px 0;"><strong>Name:</strong> <span style="text-transform: uppercase;">{{patient_name}}</span></td>
-        <td style="padding: 4px 0; text-align: right;"><strong>Report Date:</strong> {{date}}</td>
+        <td style="padding: 3px 0;"><strong>Name:</strong> <span style="text-transform: uppercase;">{{patient_name}}</span></td>
+        <td style="padding: 3px 0;"><strong>Sex :</strong> {{sex}}</td>
+        <td style="padding: 3px 0; text-align: right;"><strong>Report Date:</strong> {{date}}</td>
       </tr>
       <tr>
-        <td style="padding: 4px 0;"><strong>Age / Sex:</strong> {{age}} / {{sex}}</td>
-        <td style="padding: 4px 0; text-align: right;"></td>
-      </tr>
-      <tr>
-        <td style="padding: 4px 0;"><strong>Ref. By:</strong> {{ref_doctor}}</td>
-        <td style="padding: 4px 0; text-align: right;"></td>
+        <td style="padding: 3px 0;"><strong>Age:</strong> {{age}}</td>
+        <td style="padding: 3px 0;"><strong>Ref By:</strong> {{ref_doctor}}</td>
+        <td style="padding: 3px 0; text-align: right;"></td>
       </tr>
     </table>
   </div>
 
   <!-- Content -->
-  <div style="padding: 40px; min-height: 500px;">
-    <h2 style="text-align: center; text-decoration: underline; font-size: 18px; margin-bottom: 30px; text-transform: uppercase;">{{study}}</h2>
+  <div style="padding: 30px 45px; min-height: 450px;">
+    <h2 style="text-align: center; text-decoration: underline; font-size: 16px; margin-bottom: 25px; text-transform: uppercase; font-weight: 800;">{{study}}</h2>
     
-    <div style="font-size: 15px; color: #2d3748;">
+    <div style="font-size: 14.5px; color: #1a202c; text-align: justify;">
       {{reportText}}
     </div>
 
     <!-- Impression Section -->
-    <div style="margin-top: 40px; border-top: 2px solid #2d3748; padding-top: 20px;">
-      <h3 style="margin: 0 0 15px 0; font-size: 16px; text-decoration: underline;">IMPRESSION:</h3>
-      <div style="font-weight: 700; font-size: 15px;">
+    <div style="margin-top: 35px; border-top: 1px solid #1a202c; padding-top: 15px;">
+      <h3 style="margin: 0 0 10px 0; font-size: 15px; text-decoration: underline; font-weight: 800;">IMPRESSION:</h3>
+      <div style="font-weight: 700; font-size: 14.5px; line-height: 1.6;">
         {{impression}}
       </div>
     </div>
   </div>
 
-  <!-- Footnote -->
-  <div style="padding: 20px 40px; font-size: 10px; color: #718096; border-top: 1px solid #e2e8f0; text-align: center;">
-    <p style="margin: 0;">N.B. This is only a professional opinion and not the final diagnosis. Please correlate clinical findings with scan findings.</p>
-    <p style="margin: 5px 0 0 0; font-weight: bold; color: #e53e3e;">THIS REPORT IS NOT VALID FOR MEDICO LEGAL PURPOSES</p>
+  <!-- Signatories -->
+  <div style="padding: 20px 45px; display: flex; justify-content: space-between; align-items: flex-start; background: #fff; margin-top: 20px;">
+    <div style="text-align: center; max-width: 250px;">
+      <p style="margin: 0; font-weight: bold; font-size: 12px;">DR. NIKHIL VIKRAM</p>
+      <p style="margin: 0; font-size: 9px; color: #4a5568;">D.N.B. Radiodiagnosis, Fellowship in advanced USG Mumbai, P.G. DIP. MSK USG, UCAM, Spain</p>
+    </div>
+    <div style="text-align: center; max-width: 250px;">
+      <p style="margin: 0; font-weight: bold; font-size: 12px;">DR. NIDHI AGRAWAL</p>
+      <p style="margin: 0; font-size: 9px; color: #4a5568;">M.D. ( Radiology ), Director, Consultant Radiologist CT/MRI, Cardiac and Breast Imaging Consultant.</p>
+    </div>
+    <div style="text-align: center; max-width: 250px;">
+      <p style="margin: 0; font-weight: bold; font-size: 12px;">DR. DEEPAK AGRAWAL</p>
+      <p style="margin: 0; font-size: 9px; color: #4a5568;">M.D. ( Radiology ), Gold Medalist, Consultant Radiologist, CT/MRI Head & Neck, Body Imaging Specialist</p>
+    </div>
   </div>
 
-  <!-- Signatories -->
-  <div style="padding: 30px 40px; display: flex; justify-content: space-between; border-top: 1px solid #e2e8f0; background: #fff;">
-    <div style="text-align: center;">
-      <p style="margin: 0; font-weight: bold; font-size: 12px;">DR. NIKHIL VIKRAM</p>
-      <p style="margin: 0; font-size: 10px; color: #718096;">D.N.B. Radiodiagnosis</p>
-    </div>
-    <div style="text-align: center;">
-      <p style="margin: 0; font-weight: bold; font-size: 12px;">DR. NIDHI AGRAWAL</p>
-      <p style="margin: 0; font-size: 10px; color: #718096;">M.D. (Radiology)</p>
-    </div>
-    <div style="text-align: center;">
-      <p style="margin: 0; font-weight: bold; font-size: 12px;">DR. DEEPAK AGRAWAL</p>
-      <p style="margin: 0; font-size: 10px; color: #718096;">M.D. (Radiology)</p>
-    </div>
+  <!-- Footer Status Bar -->
+  <div style="background: #553c9a; color: white; padding: 10px; text-align: center; font-size: 9px; font-weight: 500;">
+    Silent MRI (3T Platform) | CT scan (True 16 multidetectors) | 3D/4D Ultrasound | Digital X-Ray | Mammography | Advanced Pathology Lab | ECG/EEG/TMT | DEXA Scan | Sleep Study
+  </div>
+  <div style="background: #fff; color: #e53e3e; padding: 5px; text-align: center; font-size: 10px; font-weight: bold;">
+    🚫 Sex determination & sex selective abortion is prohibited & punishable offense.
   </div>
 </div>`
     },
     {
       id: 'xray-template',
       name: 'X-Ray (Digital)',
-      html: `<div style="font-family: 'Arial', sans-serif; color: #000; max-width: 800px; margin: 0 auto; padding: 40px; background: #fff; min-height: 1000px;">
+      html: `<div style="font-family: 'Arial', sans-serif; color: #000; max-width: 800px; margin: 0 auto; padding: 40px; background: #fff; min-height: 1000px; border: 1px solid #eee;">
+  <!-- Header -->
   <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 3px solid #000; padding-bottom: 20px; margin-bottom: 30px;">
     <div>
-      <h1 style="margin: 0; font-size: 32px; font-weight: 900;">JP <span style="color: #3b82f6;">DIAGNOSTICS</span></h1>
-      <p style="margin: 0; font-size: 14px; letter-spacing: 2px;">DIGITAL RADIOGRAPHY SERVICES</p>
+      <h1 style="margin: 0; font-size: 32px; font-weight: 900; color: #1e3a8a;">JP <span style="color: #ed8936;">DIAGNOSTICS</span></h1>
+      <p style="margin: 0; font-size: 14px; letter-spacing: 2px; font-weight: bold;">DIGITAL RADIOGRAPHY SERVICES</p>
     </div>
-    <div style="text-align: right; background: #000; color: #fff; padding: 10px 20px;">
+    <div style="text-align: right; background: #1e3a8a; color: #fff; padding: 10px 20px; border-radius: 4px;">
       <h2 style="margin: 0; font-size: 18px;">X-RAY REPORT</h2>
     </div>
   </div>
 
   <div style="margin-bottom: 40px;">
-    <table style="width: 100%; border-collapse: collapse; font-size: 14px;">
+    <table style="width: 100%; border-collapse: collapse; font-size: 13px;">
       <tr>
-        <td style="padding: 8px; border: 1px solid #000;"><strong>PATIENT NAME</strong></td>
-        <td style="padding: 8px; border: 1px solid #000; text-transform: uppercase;">{{patient_name}}</td>
-        <td style="padding: 8px; border: 1px solid #000;"><strong>AGE/SEX</strong></td>
-        <td style="padding: 8px; border: 1px solid #000;">{{age}} / {{sex}}</td>
+        <td style="padding: 8px; border: 1px solid #e2e8f0; background: #f8fafc;"><strong>PATIENT NAME</strong></td>
+        <td style="padding: 8px; border: 1px solid #e2e8f0; text-transform: uppercase;">{{patient_name}}</td>
+        <td style="padding: 8px; border: 1px solid #e2e8f0; background: #f8fafc;"><strong>AGE/SEX</strong></td>
+        <td style="padding: 8px; border: 1px solid #e2e8f0;">{{age}} / {{sex}}</td>
       </tr>
       <tr>
-        <td style="padding: 8px; border: 1px solid #000;"><strong>REF. DOCTOR</strong></td>
-        <td style="padding: 8px; border: 1px solid #000;">{{ref_doctor}}</td>
-        <td style="padding: 8px; border: 1px solid #000;"><strong>DATE</strong></td>
-        <td style="padding: 8px; border: 1px solid #000;">{{date}}</td>
+        <td style="padding: 8px; border: 1px solid #e2e8f0; background: #f8fafc;"><strong>REF. DOCTOR</strong></td>
+        <td style="padding: 8px; border: 1px solid #e2e8f0;">{{ref_doctor}}</td>
+        <td style="padding: 8px; border: 1px solid #e2e8f0; background: #f8fafc;"><strong>DATE</strong></td>
+        <td style="padding: 8px; border: 1px solid #e2e8f0;">{{date}}</td>
       </tr>
     </table>
   </div>
 
   <div style="margin-bottom: 30px;">
-    <h3 style="background: #f3f4f6; padding: 10px; border-left: 5px solid #000;">STUDY: {{study}}</h3>
+    <h3 style="background: #f1f5f9; padding: 12px; border-left: 5px solid #1e3a8a; margin: 0; font-size: 16px;">STUDY: {{study}}</h3>
   </div>
 
-  <div style="font-size: 16px; line-height: 1.8; margin-bottom: 50px;">
+  <div style="font-size: 15px; line-height: 1.8; margin-bottom: 50px; min-height: 300px;">
     {{reportText}}
   </div>
 
-  <div style="background: #000; color: #fff; padding: 15px; border-radius: 4px; margin-bottom: 40px;">
-    <h4 style="margin: 0 0 5px 0; color: #fbd38d; font-size: 14px;">FINAL IMPRESSION</h4>
-    <p style="margin: 0; font-weight: bold; font-size: 16px;">{{impression}}</p>
+  <div style="background: #1e3a8a; color: #fff; padding: 20px; border-radius: 8px; margin-bottom: 40px;">
+    <h4 style="margin: 0 0 8px 0; color: #fbd38d; font-size: 13px; text-transform: uppercase;">FINAL IMPRESSION</h4>
+    <p style="margin: 0; font-weight: bold; font-size: 16px; line-height: 1.4;">{{impression}}</p>
   </div>
 
   <div style="display: flex; justify-content: flex-end; margin-top: 100px;">
     <div style="text-align: center; width: 250px;">
-      <div style="border-top: 1px solid #000; padding-top: 10px;">
-        <p style="margin: 0; font-weight: bold;">Dr. DEEPAK AGRAWAL</p>
-        <p style="margin: 0; font-size: 12px;">Consultant Radiologist</p>
+      <div style="border-top: 2px solid #1e3a8a; padding-top: 10px;">
+        <p style="margin: 0; font-weight: bold; font-size: 14px;">DR. DEEPAK AGRAWAL</p>
+        <p style="margin: 0; font-size: 11px; color: #64748b;">Consultant Radiologist</p>
       </div>
     </div>
   </div>
@@ -138,128 +143,37 @@ export const defaultTemplates = [
     {
       id: 'ct-template',
       name: 'CT Scan',
-      html: `<div style="font-family: 'Helvetica', Arial, sans-serif; color: #333; max-width: 800px; margin: 0 auto; background: #fff;">
-  <div style="padding: 40px; border: 10px solid #f3f4f6;">
+      html: `<div style="font-family: 'Helvetica', Arial, sans-serif; color: #333; max-width: 800px; margin: 0 auto; background: #fff; border: 1px solid #e2e8f0;">
+  <div style="padding: 40px; border: 12px solid #f8fafc;">
     <div style="text-align: center; margin-bottom: 40px;">
-      <h1 style="margin: 0; color: #1e40af; font-size: 36px;">JP DIAGNOSTICS</h1>
-      <p style="margin: 0; font-weight: 600; color: #64748b;">ADVANCED MULTI-SLICE CT CENTER</p>
+      <h1 style="margin: 0; color: #1e40af; font-size: 38px; font-weight: 900;">JP DIAGNOSTICS</h1>
+      <p style="margin: 5px 0; font-weight: 700; color: #64748b; letter-spacing: 2px;">ADVANCED MULTI-SLICE CT CENTER</p>
     </div>
 
-    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin-bottom: 40px; font-size: 14px;">
-      <div style="padding: 15px; background: #eff6ff; border-radius: 8px;">
-        <p style="margin: 5px 0;"><strong>Patient Name:</strong> {{patient_name}}</p>
-        <p style="margin: 5px 0;"><strong>Age / Sex:</strong> {{age}} / {{sex}}</p>
-        <p style="margin: 5px 0;"><strong>UHID:</strong> {{uhid}}</p>
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 40px; font-size: 13px;">
+      <div style="padding: 15px; background: #f0f7ff; border-radius: 8px; border: 1px solid #dbeafe;">
+        <p style="margin: 6px 0;"><strong>Patient Name:</strong> {{patient_name}}</p>
+        <p style="margin: 6px 0;"><strong>Age / Sex:</strong> {{age}} / {{sex}}</p>
+        <p style="margin: 6px 0;"><strong>UHID:</strong> {{uhid}}</p>
       </div>
-      <div style="padding: 15px; background: #eff6ff; border-radius: 8px;">
-        <p style="margin: 5px 0;"><strong>Referring Doctor:</strong> {{ref_doctor}}</p>
-        <p style="margin: 5px 0;"><strong>Date:</strong> {{date}}</p>
-        <p style="margin: 5px 0;"><strong>Study:</strong> {{study}}</p>
+      <div style="padding: 15px; background: #f0f7ff; border-radius: 8px; border: 1px solid #dbeafe;">
+        <p style="margin: 6px 0;"><strong>Referring Doctor:</strong> {{ref_doctor}}</p>
+        <p style="margin: 6px 0;"><strong>Date:</strong> {{date}}</p>
+        <p style="margin: 6px 0;"><strong>Study:</strong> {{study}}</p>
       </div>
     </div>
 
-    <div style="border-bottom: 2px solid #1e40af; margin-bottom: 30px;">
-      <h2 style="font-size: 20px; color: #1e40af; margin: 0 0 10px 0;">COMPUTED TOMOGRAPHY REPORT</h2>
+    <div style="border-bottom: 3px solid #1e40af; margin-bottom: 30px; padding-bottom: 10px;">
+      <h2 style="font-size: 22px; color: #1e40af; margin: 0; font-weight: 800;">COMPUTED TOMOGRAPHY REPORT</h2>
     </div>
 
-    <div style="font-size: 15px; line-height: 1.6; min-height: 400px;">
+    <div style="font-size: 15px; line-height: 1.7; min-height: 400px; color: #1f2937;">
       {{reportText}}
     </div>
 
-    <div style="margin-top: 40px; padding: 20px; border: 2px solid #1e40af; border-radius: 8px; background: #fff;">
-      <h3 style="margin: 0 0 10px 0; color: #1e40af; font-size: 16px;">CLINICAL IMPRESSION:</h3>
-      <div style="font-weight: 600;">{{impression}}</div>
-    </div>
-  </div>
-</div>`
-    },
-    {
-      id: 'mri-template',
-      name: 'MRI Scan',
-      html: `<div style="font-family: 'Times New Roman', Times, serif; color: #000; max-width: 800px; margin: 0 auto; padding: 50px; background: #fff; border: 1px solid #000;">
-  <div style="text-align: center; margin-bottom: 40px;">
-    <h1 style="margin: 0; font-size: 40px; letter-spacing: 5px;">JP DIAGNOSTICS</h1>
-    <p style="margin: 5px 0; font-size: 16px; font-weight: bold;">3T SILENT MRI PLATFORM</p>
-  </div>
-
-  <table style="width: 100%; border-top: 2px solid #000; border-bottom: 2px solid #000; margin-bottom: 30px; font-size: 14px;">
-    <tr>
-      <td style="padding: 5px 0;"><strong>Patient:</strong> {{patient_name}}</td>
-      <td style="padding: 5px 0; text-align: right;"><strong>Ref By:</strong> {{ref_doctor}}</td>
-    </tr>
-    <tr>
-      <td style="padding: 5px 0;"><strong>Age/Sex:</strong> {{age}} / {{sex}}</td>
-      <td style="padding: 5px 0; text-align: right;"><strong>Date:</strong> {{date}}</td>
-    </tr>
-  </table>
-
-  <div style="text-align: center; margin-bottom: 30px;">
-    <h2 style="font-size: 20px; text-decoration: underline;">MRI REPORT: {{study}}</h2>
-  </div>
-
-  <div style="font-size: 16px; line-height: 2; margin-bottom: 60px;">
-    {{reportText}}
-  </div>
-
-  <div style="margin-top: 40px;">
-    <h3 style="font-size: 18px; margin-bottom: 10px;">IMPRESSION:</h3>
-    <div style="font-weight: bold; border-left: 4px solid #000; padding-left: 20px;">
-      {{impression}}
-    </div>
-  </div>
-</div>`
-    },
-    {
-      id: 'blood-test-template',
-      name: 'Pathology (Blood Test)',
-      html: `<div style="font-family: 'Segoe UI', Arial, sans-serif; color: #333; max-width: 800px; margin: 0 auto; padding: 40px; background: #fff; border: 1px solid #eee;">
-  <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #e11d48; padding-bottom: 20px; margin-bottom: 30px;">
-    <div>
-      <h1 style="margin: 0; color: #e11d48; font-size: 28px;">PATHOLOGY REPORT</h1>
-      <p style="margin: 5px 0 0 0; font-size: 14px; letter-spacing: 2px; color: #64748b;">JP DIAGNOSTICS & LABS</p>
-    </div>
-    <div style="text-align: right;">
-      <p style="margin: 0; font-weight: 700;">ISO 9001:2015 CERTIFIED</p>
-      <p style="margin: 2px 0; font-size: 12px; color: #64748b;">Accredited Laboratory</p>
-    </div>
-  </div>
-
-  <div style="background: #fff1f2; padding: 20px; border-radius: 8px; margin-bottom: 40px; border: 1px solid #fecdd3;">
-    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; font-size: 13px;">
-      <div>
-        <p style="margin: 4px 0;"><strong>PATIENT NAME:</strong> {{patient_name}}</p>
-        <p style="margin: 4px 0;"><strong>AGE / SEX:</strong> {{age}} / {{sex}}</p>
-        <p style="margin: 4px 0;"><strong>PATIENT ID:</strong> {{uhid}}</p>
-      </div>
-      <div style="text-align: right;">
-        <p style="margin: 4px 0;"><strong>DATE:</strong> {{date}}</p>
-        <p style="margin: 4px 0;"><strong>REF BY:</strong> {{ref_doctor}}</p>
-        <p style="margin: 4px 0;"><strong>COLLECTION:</strong> LAB CENTER</p>
-      </div>
-    </div>
-  </div>
-
-  <div style="margin-bottom: 40px;">
-    <h3 style="background: #e11d48; color: #fff; padding: 8px 15px; font-size: 16px; border-radius: 4px; margin-bottom: 20px;">{{study}}</h3>
-    <div style="line-height: 1.8; font-size: 14px;">
-      {{reportText}}
-    </div>
-  </div>
-
-  <div style="background: #f8fafc; padding: 20px; border-left: 5px solid #e11d48; margin-bottom: 50px;">
-    <h4 style="margin: 0 0 10px 0; color: #e11d48; font-size: 14px;">PATHOLOGIST'S INTERPRETATION</h4>
-    <div style="font-size: 14px; font-weight: 600; white-space: pre-line;">{{impression}}</div>
-  </div>
-
-  <div style="display: flex; justify-content: space-between; margin-top: 100px; font-size: 12px;">
-    <div style="text-align: center;">
-      <div style="height: 50px;"></div>
-      <p style="margin: 0; font-weight: bold;">Lab Technician</p>
-    </div>
-    <div style="text-align: center;">
-      <div style="height: 50px;"></div>
-      <p style="margin: 0; font-weight: bold;">DR. VISHAL SHARMA</p>
-      <p style="margin: 0;">MD (Pathology)</p>
+    <div style="margin-top: 40px; padding: 25px; border: 2px solid #1e40af; border-radius: 12px; background: #fff; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);">
+      <h3 style="margin: 0 0 12px 0; color: #1e40af; font-size: 16px; font-weight: 800; border-bottom: 1px solid #e5e7eb; padding-bottom: 8px;">CLINICAL IMPRESSION:</h3>
+      <div style="font-weight: 700; color: #111827; font-size: 15.5px;">{{impression}}</div>
     </div>
   </div>
 </div>`
