@@ -136,7 +136,10 @@ const CreateReport = () => {
         })
       });
       
-      if (!response.ok) throw new Error("API failed");
+      if (!response.ok) {
+        const errText = await response.text();
+        throw new Error(`API failed with status ${response.status}: ${errText}`);
+      }
       
       const data = await response.json();
       setReportData(data);
@@ -149,8 +152,8 @@ const CreateReport = () => {
         setTimeout(() => btn.classList.remove('fade-in'), 1000);
       }
     } catch (error) {
-      console.error("Failed to generate report:", error);
-      alert("Failed to reach AI backend. Ensure FastAPI server is running.");
+      console.error("Detailed failure:", error);
+      alert(`Connection Error: Could not reach the AI backend.\nAttempted URL: ${import.meta.env.VITE_API_URL}\nError: ${error.message}`);
     } finally {
       setIsProcessing(false);
     }
