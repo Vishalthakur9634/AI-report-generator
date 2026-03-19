@@ -154,7 +154,13 @@ const CreateReport = () => {
       }
     } catch (error) {
       console.error("Detailed failure:", error);
-      alert(`Connection Error: Could not reach the AI backend.\nAttempted URL: ${import.meta.env.VITE_API_URL}\nError: ${error.message}`);
+      const urlUsed = import.meta.env.VITE_API_URL || 'MISSING';
+      alert(`Connection Error: Could not reach the AI backend.\n\n` +
+            `DEVOPS INFO:\n` +
+            `- Attempted Base URL: ${urlUsed}\n` +
+            `- Full Path: ${urlUsed}/api/generate_report\n` +
+            `- Reason: ${error.message}\n\n` +
+            `FIX: If URL says 'MISSING', you must add VITE_API_URL to Netlify!`);
     } finally {
       setIsProcessing(false);
     }
