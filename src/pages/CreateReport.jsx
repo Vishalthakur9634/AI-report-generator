@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Mic, Square, FileText, Loader, FileDown, CheckCircle, FileCheck, Trash2 } from 'lucide-react';
 import html2pdf from 'html2pdf.js';
+import { defaultTemplates } from '../data/defaultTemplates';
 
 const CreateReport = () => {
   const [isRecording, setIsRecording] = useState(false);
@@ -93,6 +94,11 @@ const CreateReport = () => {
       if (parsed.length > 0) {
         setSelectedTemplateId(parsed[0].id);
       }
+    } else {
+      // Seed with defaults on first visit
+      localStorage.setItem('medvoice_templates', JSON.stringify(defaultTemplates));
+      setTemplates(defaultTemplates);
+      setSelectedTemplateId(defaultTemplates[0].id);
     }
   }, []);
 
