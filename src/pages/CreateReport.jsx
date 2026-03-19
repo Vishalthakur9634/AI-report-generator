@@ -127,7 +127,10 @@ const CreateReport = () => {
     try {
       // Call our FastAPI backend
       // Clean up the URL (remove trailing slash and spaces)
-      const API_URL = (import.meta.env.VITE_API_URL || '').trim().replace(/\/$/, '');
+      let API_URL = (import.meta.env.VITE_API_URL || '').trim().replace(/\/$/, '');
+      // Prevent accidental double /api if user added it to the env variable
+      if (API_URL.endsWith('/api')) API_URL = API_URL.slice(0, -4);
+      
       const response = await fetch(`${API_URL}/api/generate_report`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
