@@ -125,11 +125,8 @@ const CreateReport = () => {
     
     setIsProcessing(true);
     try {
-      // Call our FastAPI backend
-      // Clean up the URL (remove trailing slash and spaces)
-      // Fallback to the known working Render URL if the environment variable is missing
-      let API_URL = (import.meta.env.VITE_API_URL || 'https://ai-report-generator-backend.onrender.com').trim().replace(/\/$/, '');
-      if (API_URL.endsWith('/api')) API_URL = API_URL.slice(0, -4);
+      // TEMP HARDCODE FOR DIAGNOSIS
+      const API_URL = 'https://ai-report-generator-backend.onrender.com';
       
       const response = await fetch(`${API_URL}/api/generate_report`, {
         method: 'POST',
