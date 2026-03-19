@@ -125,8 +125,9 @@ const CreateReport = () => {
     
     setIsProcessing(true);
     try {
-      // TEMP HARDCODE FOR DIAGNOSIS
-      const API_URL = 'https://ai-report-generator-backend.onrender.com';
+      // Robust API URL construction from environment variables
+      let API_URL = (import.meta.env.VITE_API_URL || '').trim().replace(/\/$/, '');
+      if (API_URL.endsWith('/api')) API_URL = API_URL.slice(0, -4);
       
       const response = await fetch(`${API_URL}/api/generate_report`, {
         method: 'POST',
