@@ -73,15 +73,28 @@ const Sidebar = () => {
                 alignItems: 'center',
                 gap: '12px',
                 padding: '12px 16px',
-                borderRadius: '8px',
+                borderRadius: '12px',
                 color: isActive ? '#fff' : 'var(--text-muted)',
                 backgroundColor: isActive ? 'rgba(88, 166, 255, 0.1)' : 'transparent',
                 border: isActive ? '1px solid rgba(88, 166, 255, 0.2)' : '1px solid transparent',
                 textDecoration: 'none',
-                fontWeight: isActive ? 500 : 400,
-                transition: 'var(--transition)'
+                fontWeight: isActive ? 600 : 400,
+                transition: 'var(--transition)',
+                boxShadow: isActive ? '0 4px 12px rgba(88, 166, 255, 0.1)' : 'none',
+                position: 'relative'
               }}
             >
+              {isActive && (
+                <div style={{
+                  position: 'absolute',
+                  left: '-16px',
+                  width: '4px',
+                  height: '24px',
+                  backgroundColor: 'var(--primary)',
+                  borderRadius: '0 4px 4px 0',
+                  boxShadow: '0 0 10px var(--primary)'
+                }}></div>
+              )}
               <Icon size={18} color={isActive ? 'var(--primary)' : 'currentColor'} />
               {item.label}
             </NavLink>

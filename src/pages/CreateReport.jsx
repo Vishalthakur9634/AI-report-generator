@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Mic, Square, FileText, Loader, FileDown, CheckCircle, FileCheck } from 'lucide-react';
+import { Mic, Square, FileText, Loader, FileDown, CheckCircle, FileCheck, Trash2 } from 'lucide-react';
 import html2pdf from 'html2pdf.js';
 
 const CreateReport = () => {
@@ -11,6 +11,16 @@ const CreateReport = () => {
   const [templates, setTemplates] = useState([]);
   const [selectedTemplateId, setSelectedTemplateId] = useState('');
   const [interimTranscript, setInterimTranscript] = useState('');
+  const [selectedModality, setSelectedModality] = useState('USG');
+  
+  const modalities = [
+    { id: 'USG', label: 'Ultrasound', icon: '🩺' },
+    { id: 'X-RAY', label: 'X-Ray', icon: '🦴' },
+    { id: 'CT', label: 'CT Scan', icon: '🧬' },
+    { id: 'MRI', label: 'MRI Scan', icon: '🧠' },
+    { id: 'BLOOD TEST', label: 'Blood Test', icon: '🩸' },
+    { id: 'DOPPLER', label: 'Doppler', icon: '🌊' }
+  ];
   
   const recognitionRef = useRef(null);
   const reportRef = useRef(null);
@@ -38,6 +48,22 @@ const CreateReport = () => {
         }
         
         if (final) {
+          const lowerFinal = final.toLowerCase().trim();
+          
+          // AI Voice Commands
+          if (lowerFinal.includes('generate report')) {
+            generateReport();
+            return;
+          }
+          if (lowerFinal.includes('clear transcript') || (lowerFinal === 'clear')) {
+            setTranscript('');
+            return;
+          }
+          if (lowerFinal.includes('stop recording') || lowerFinal === 'stop dictation') {
+            toggleRecording();
+            return;
+          }
+
           setTranscript(prev => prev + final);
           setInterimTranscript('');
         } else {
@@ -100,10 +126,14 @@ const CreateReport = () => {
     setIsProcessing(true);
     try {
       // Call our FastAPI backend
-      const response = await fetch('http://localhost:8000/api/generate_report', {
+      const API_URL = import.meta.env.VITE_API_URL;
+      const response = await fetch(`${API_URL}/api/generate_report`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ transcript })
+        body: JSON.stringify({ 
+          transcript,
+          modality: selectedModality
+        })
       });
       
       if (!response.ok) throw new Error("API failed");
@@ -111,6 +141,13 @@ const CreateReport = () => {
       const data = await response.json();
       setReportData(data);
       fillTemplate(data);
+      
+      // Success "WOW" effect
+      const btn = document.querySelector('.btn-success');
+      if (btn) {
+        btn.classList.add('fade-in');
+        setTimeout(() => btn.classList.remove('fade-in'), 1000);
+      }
     } catch (error) {
       console.error("Failed to generate report:", error);
       alert("Failed to reach AI backend. Ensure FastAPI server is running.");
@@ -165,9 +202,9 @@ const CreateReport = () => {
   return (
     <div className="fade-in" style={{ display: 'flex', gap: '32px', height: 'calc(100vh - 120px)' }}>
       {/* Left Column - Voice Input */}
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '24px' }}>
-        <div className="glass-panel" style={{ padding: '32px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', flex: '0 0 auto' }}>
-          <div style={{ marginBottom: '24px' }}>
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '20px', minWidth: '400px', height: '100%' }}>
+        <div className="glass-panel" style={{ padding: '24px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', flex: '0 0 auto' }}>
+          <div style={{ marginBottom: '16px' }}>
             {isRecording ? (
               <div style={{ width: '80px', height: '80px', borderRadius: '50%', backgroundColor: 'rgba(218, 54, 51, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                 <div style={{ width: '50px', height: '50px', borderRadius: '50%', backgroundColor: 'var(--danger)', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 0 20px rgba(218, 54, 51, 0.6)' }} className="recording-indicator">
@@ -189,6 +226,36 @@ const CreateReport = () => {
           </p>
 
           <div style={{ width: '100%', marginBottom: '24px' }}>
+            <label style={{ display: 'block', fontSize: '0.85rem', color: 'var(--text-muted)', marginBottom: '12px' }}>Select Study Category</label>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '8px', marginBottom: '20px' }}>
+              {modalities.map(m => (
+                <div 
+                  key={m.id}
+                  onClick={() => {
+                    setSelectedModality(m.id);
+                    // Auto-select corresponding template if available
+                    const templateMatch = templates.find(t => t.name.toUpperCase().includes(m.id) || t.id.toUpperCase().includes(m.id));
+                    if (templateMatch) setSelectedTemplateId(templateMatch.id);
+                  }}
+                  style={{
+                    padding: '10px 4px',
+                    borderRadius: '8px',
+                    cursor: 'pointer',
+                    backgroundColor: selectedModality === m.id ? 'rgba(88, 166, 255, 0.2)' : 'rgba(255,255,255,0.03)',
+                    border: selectedModality === m.id ? '1px solid var(--primary)' : '1px solid rgba(255,255,255,0.05)',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    gap: '4px',
+                    transition: 'var(--transition)'
+                  }}
+                >
+                  <span style={{ fontSize: '1.2rem' }}>{m.icon}</span>
+                  <span style={{ fontSize: '0.7rem', fontWeight: 600, color: selectedModality === m.id ? '#fff' : 'var(--text-muted)' }}>{m.label}</span>
+                </div>
+              ))}
+            </div>
+
             <label style={{ display: 'block', fontSize: '0.85rem', color: 'var(--text-muted)', marginBottom: '8px' }}>Active Report Template</label>
             <select 
               value={selectedTemplateId} 
@@ -212,58 +279,79 @@ const CreateReport = () => {
             </select>
           </div>
 
-          <div style={{ display: 'flex', gap: '16px', width: '100%' }}>
+          <div style={{ display: 'flex', gap: '12px', width: '100%' }}>
             <button 
               onClick={toggleRecording} 
               className={`btn ${isRecording ? 'btn-danger' : 'btn-primary'}`}
-              style={{ flex: 1, padding: '16px' }}
+              style={{ flex: 1, padding: '12px', minHeight: '48px', position: 'relative', overflow: 'hidden' }}
             >
-              {isRecording ? <><Square size={20} /> Stop Dictation</> : <><Mic size={20} /> Start Dictation</>}
+              {isRecording ? (
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <div className="wave-container">
+                    <div className="wave-bar"></div>
+                    <div className="wave-bar"></div>
+                    <div className="wave-bar"></div>
+                    <div className="wave-bar"></div>
+                    <div className="wave-bar"></div>
+                  </div>
+                  Stop
+                </div>
+              ) : (
+                <><Mic size={18} /> Start</>
+              )}
             </button>
             <button 
               onClick={generateReport}
               disabled={!transcript && !interimTranscript || isRecording || isProcessing}
               className="btn btn-success"
-              style={{ flex: 1, padding: '16px' }}
+              style={{ flex: 1.5, padding: '12px' }}
             >
-              {isProcessing ? <><Loader size={20} className="spin" /> Processing...</> : <><FileText size={20} /> Generate Report</>}
+              {isProcessing ? <><Loader size={18} className="spin" /> Sending...</> : <><FileText size={18} /> Generate</>}
             </button>
             <button 
               onClick={clearTranscript}
               disabled={isRecording || isProcessing || !transcript}
-              className="btn btn-danger"
-              style={{ flex: 0.3, padding: '16px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+              className="btn btn-outline"
+              style={{ padding: '12px', width: '48px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
               title="Clear Transcript"
             >
-              <Square size={18} fill="currentColor" />
+              <Trash2 size={18} />
             </button>
           </div>
+
+          {isRecording && (
+            <div className="fade-in" style={{ marginTop: '20px', padding: '12px 20px', borderRadius: '30px', backgroundColor: 'rgba(88, 166, 255, 0.1)', border: '1px solid rgba(88, 166, 255, 0.2)', display: 'flex', alignItems: 'center', gap: '12px' }}>
+              <div className="recording-indicator"></div>
+              <span style={{ fontSize: '0.85rem', color: 'var(--primary)', fontWeight: 500 }}>
+                AI is listening... Try "Generate Report" or "Clear"
+              </span>
+            </div>
+          )}
         </div>
 
         {/* Live Transcript View */}
-        <div className="glass-panel" style={{ padding: '24px', flex: 1, display: 'flex', flexDirection: 'column' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
-            <h4 style={{ fontSize: '1.1rem', margin: 0 }}>Live Transcript</h4>
-            {isRecording && <span style={{ color: 'var(--danger)', fontSize: '0.85rem', fontWeight: 500, display: 'flex', alignItems: 'center', gap: '6px' }}><span className="recording-indicator" style={{ width: '8px', height: '8px' }}></span> Listening</span>}
+        <div className="glass-panel" style={{ padding: '20px', flex: 1, display: 'flex', flexDirection: 'column', minHeight: '200px', backgroundColor: 'rgba(22, 27, 34, 0.4)' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
+            <h4 style={{ fontSize: '1rem', margin: 0, color: 'var(--primary)' }}>Live Transcript</h4>
+            {isRecording && <span style={{ color: 'var(--danger)', fontSize: '0.75rem', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '6px' }}><span className="recording-indicator" style={{ width: '6px', height: '6px' }}></span> Real-time</span>}
           </div>
             <div style={{ flex: 1, position: 'relative', display: 'flex' }}>
               <textarea 
                 value={transcript}
                 onChange={(e) => setTranscript(e.target.value)}
-                placeholder="Transcript will appear here... (Example: 'Patient name Rahul Sharma age 45 male ref doctor Dr Gupta ultrasound whole abdomen...') You can also type manually here."
+                placeholder="Your dictated text will appear here..."
                 style={{
                   flex: 1, 
-                  backgroundColor: 'rgba(1, 4, 9, 0.5)', 
-                  borderRadius: 'var(--radius-md)', 
-                  padding: '20px',
-                  color: '#e6edf3',
-                  fontSize: '1.05rem',
-                  lineHeight: '1.6',
-                  border: '1px solid var(--border-color)',
+                  backgroundColor: 'rgba(1, 4, 9, 0.3)', 
+                  borderRadius: '12px', 
+                  padding: '16px',
+                  color: '#fff',
+                  fontSize: '1rem',
+                  lineHeight: '1.5',
+                  border: '1px solid rgba(88, 166, 255, 0.2)',
                   resize: 'none',
                   outline: 'none',
-                  fontFamily: 'inherit',
-                  paddingBottom: '40px'
+                  fontFamily: 'inherit'
                 }}
                 onFocus={(e) => e.target.style.borderColor = 'var(--primary)'}
                 onBlur={(e) => e.target.style.borderColor = 'var(--border-color)'}

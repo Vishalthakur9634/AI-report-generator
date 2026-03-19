@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Save, FileCheck, Code, Plus, Trash2, Edit3, Check } from 'lucide-react';
+import { Save, FileCheck, Code, Plus, Trash2, Edit3, Check, RefreshCw } from 'lucide-react';
 
 const TemplateManager = () => {
   const [templates, setTemplates] = useState([]);
@@ -218,6 +218,61 @@ const TemplateManager = () => {
     </div>
   </div>
 </div>`
+    },
+    {
+      id: 'blood-test-template',
+      name: 'Pathology (Blood Test)',
+      html: `<div style="font-family: 'Segoe UI', Arial, sans-serif; color: #333; max-width: 800px; margin: 0 auto; padding: 40px; background: #fff; border: 1px solid #eee;">
+  <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #e11d48; padding-bottom: 20px; margin-bottom: 30px;">
+    <div>
+      <h1 style="margin: 0; color: #e11d48; font-size: 28px;">PATHOLOGY REPORT</h1>
+      <p style="margin: 5px 0 0 0; font-size: 14px; letter-spacing: 2px; color: #64748b;">JP DIAGNOSTICS & LABS</p>
+    </div>
+    <div style="text-align: right;">
+      <p style="margin: 0; font-weight: 700;">ISO 9001:2015 CERTIFIED</p>
+      <p style="margin: 2px 0; font-size: 12px; color: #64748b;">Accredited Laboratory</p>
+    </div>
+  </div>
+
+  <div style="background: #fff1f2; padding: 20px; border-radius: 8px; margin-bottom: 40px; border: 1px solid #fecdd3;">
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; font-size: 13px;">
+      <div>
+        <p style="margin: 4px 0;"><strong>PATIENT NAME:</strong> {{patient_name}}</p>
+        <p style="margin: 4px 0;"><strong>AGE / SEX:</strong> {{age}} / {{sex}}</p>
+        <p style="margin: 4px 0;"><strong>PATIENT ID:</strong> {{uhid}}</p>
+      </div>
+      <div style="text-align: right;">
+        <p style="margin: 4px 0;"><strong>DATE:</strong> {{date}}</p>
+        <p style="margin: 4px 0;"><strong>REF BY:</strong> {{ref_doctor}}</p>
+        <p style="margin: 4px 0;"><strong>COLLECTION:</strong> LAB CENTER</p>
+      </div>
+    </div>
+  </div>
+
+  <div style="margin-bottom: 40px;">
+    <h3 style="background: #e11d48; color: #fff; padding: 8px 15px; font-size: 16px; border-radius: 4px; margin-bottom: 20px;">{{study}}</h3>
+    <div style="line-height: 1.8; font-size: 14px;">
+      {{reportText}}
+    </div>
+  </div>
+
+  <div style="background: #f8fafc; padding: 20px; border-left: 5px solid #e11d48; margin-bottom: 50px;">
+    <h4 style="margin: 0 0 10px 0; color: #e11d48; font-size: 14px;">PATHOLOGIST'S INTERPRETATION</h4>
+    <div style="font-size: 14px; font-weight: 600; white-space: pre-line;">{{impression}}</div>
+  </div>
+
+  <div style="display: flex; justify-content: space-between; margin-top: 100px; font-size: 12px;">
+    <div style="text-align: center;">
+      <div style="height: 50px;"></div>
+      <p style="margin: 0; font-weight: bold;">Lab Technician</p>
+    </div>
+    <div style="text-align: center;">
+      <div style="height: 50px;"></div>
+      <p style="margin: 0; font-weight: bold;">DR. VISHAL SHARMA</p>
+      <p style="margin: 0;">MD (Pathology)</p>
+    </div>
+  </div>
+</div>`
     }
   ];
 
@@ -276,6 +331,15 @@ const TemplateManager = () => {
         setActiveTemplateId(updated[0].id);
         setEditingTemplate({ name: updated[0].name, html: updated[0].html });
       }
+    }
+  };
+
+  const handleReset = () => {
+    if (window.confirm("This will replace all your current templates with the professional defaults. Continue?")) {
+      localStorage.setItem('medvoice_templates', JSON.stringify(defaultTemplates));
+      setTemplates(defaultTemplates);
+      setActiveTemplateId(defaultTemplates[0].id);
+      setEditingTemplate({ name: defaultTemplates[0].name, html: defaultTemplates[0].html });
     }
   };
 
