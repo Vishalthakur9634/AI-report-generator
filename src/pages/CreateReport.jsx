@@ -215,18 +215,27 @@ const CreateReport = () => {
     // 1. Generate Findings HTML Table/List
     let findingsHTML = '';
     if (data.findings && Array.isArray(data.findings)) {
-      findingsHTML = '<div style="margin-top: 20px;">';
-      data.findings.forEach(f => {
+      findingsHTML = `
+        <table style="width: 100%; border-collapse: collapse; margin-top: 10px;">
+          <thead>
+            <tr style="border-bottom: 2px solid #1e3a8a;">
+              <th style="text-align: left; padding: 12px 15px; font-size: 14px; color: #1e3a8a; width: 25%; text-transform: uppercase; background: #f8fafc;">Investigation / Organ</th>
+              <th style="text-align: left; padding: 12px 15px; font-size: 14px; color: #1e3a8a; background: #f8fafc;">Findings & Observations</th>
+            </tr>
+          </thead>
+          <tbody>
+      `;
+      data.findings.forEach((f, index) => {
         findingsHTML += `
-          <div style="margin-bottom: 20px; display: flex; gap: 20px; align-items: flex-start;">
-            <div style="width: 180px; font-weight: 800; color: #1e3a8a; text-transform: uppercase; font-size: 14px; flex-shrink: 0; padding-top: 4px;">${f.organ}</div>
-            <div style="flex: 1; font-size: 15.5px; line-height: 1.6; color: #111827; text-align: justify;">${f.description}</div>
-          </div>
+          <tr style="border-bottom: 1px solid #edf2f7; ${index % 2 === 0 ? 'background: #fff;' : 'background: #fafafa;'}">
+            <td style="padding: 15px; font-weight: 800; color: #1e3a8a; font-size: 14px; vertical-align: top; text-transform: uppercase; border-right: 1px solid #edf2f7;">${f.organ}</td>
+            <td style="padding: 15px; font-size: 15px; color: #111827; line-height: 1.6; text-align: justify;">${f.description}</td>
+          </tr>
         `;
       });
-      findingsHTML += '</div>';
+      findingsHTML += '</tbody></table>';
     } else {
-      findingsHTML = `<p>${data.reportText || ''}</p>`;
+      findingsHTML = `<p style="font-size: 15px; line-height: 1.8; color: #111827;">${data.reportText || ''}</p>`;
     }
 
     // 2. Map Profile Data
