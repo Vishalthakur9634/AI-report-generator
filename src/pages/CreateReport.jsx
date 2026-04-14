@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Mic, Square, FileText, Loader, FileDown, CheckCircle, FileCheck, Trash2 } from 'lucide-react';
+import { Mic, Square, FileText, Loader, FileDown, CheckCircle, FileCheck, Trash2, Settings } from 'lucide-react';
 import html2pdf from 'html2pdf.js';
 import { defaultTemplates } from '../data/defaultTemplates';
 
