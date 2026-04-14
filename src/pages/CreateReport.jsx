@@ -174,20 +174,88 @@ const CreateReport = () => {
     }
   };
 
+  const [centerProfile, setCenterProfile] = useState({
+    name: 'JP DIAGNOSTICS',
+    tagline: 'RADIOLOGY | PATHOLOGY',
+    slogan: 'WE DIAGNOSE RIGHT',
+    phone: '+91-7579470000 | +91-7579430000',
+    email: 'info@jpdiagnostics.in',
+    website: 'www.jpdiagnostics.in',
+    address: 'JSR Tower, Goverdhan Crossing, Mathura',
+    signatures: [
+      { name: 'DR. NIKHIL VIKRAM', degree: 'D.N.B. Radiodiagnosis, Fellowship in advanced USG', sign: 'NikhVik...' },
+      { name: 'DR. NIDHI AGRAWAL', degree: 'M.D. (Radiology), Director, Consultant Radiologist', sign: 'AgrawN...' },
+      { name: 'DR. DEEPAK AGRAWAL', degree: 'M.D. (Radiology), Gold Medalist, Radiologist', sign: 'DeepAg...' }
+    ]
+  });
+
+  const [showProfileModal, setShowProfileModal] = useState(false);
+
+  const handleProfileChange = (e) => {
+    const { name, value } = e.target;
+    const newProfile = { ...centerProfile, [name]: value };
+    setCenterProfile(newProfile);
+    localStorage.setItem('medvoice_profile', JSON.stringify(newProfile));
+  };
+
+  const handleSignatureChange = (index, field, value) => {
+    const newSigs = [...centerProfile.signatures];
+    newSigs[index] = { ...newSigs[index], [field]: value };
+    const newProfile = { ...centerProfile, signatures: newSigs };
+    setCenterProfile(newProfile);
+    localStorage.setItem('medvoice_profile', JSON.stringify(newProfile));
+  };
+
   const fillTemplate = (data) => {
     const activeTemplate = templates.find(t => t.id === selectedTemplateId);
     if (!activeTemplate) return;
 
-    const templateHTML = activeTemplate.html;
+    let finalHTML = activeTemplate.html;
 
-    // Flatten data for easy replacement
-    const flatData = {
-      ...data.patientData,
-      reportText: data.reportText,
-      impression: data.impression
+    // 1. Generate Findings HTML Table/List
+    let findingsHTML = '';
+    if (data.findings && Array.isArray(data.findings)) {
+      findingsHTML = '<div style="margin-top: 20px;">';
+      data.findings.forEach(f => {
+        findingsHTML += `
+          <div style="margin-bottom: 20px; display: flex; gap: 20px; align-items: flex-start;">
+            <div style="width: 180px; font-weight: 800; color: #1e3a8a; text-transform: uppercase; font-size: 14px; flex-shrink: 0; padding-top: 4px;">${f.organ}</div>
+            <div style="flex: 1; font-size: 15.5px; line-height: 1.6; color: #111827; text-align: justify;">${f.description}</div>
+          </div>
+        `;
+      });
+      findingsHTML += '</div>';
+    } else {
+      findingsHTML = `<p>${data.reportText || ''}</p>`;
+    }
+
+    // 2. Map Profile Data
+    const profileMap = {
+      centerName: centerProfile.name,
+      centerTagline: centerProfile.tagline,
+      centerSlogan: centerProfile.slogan,
+      centerPhone: centerProfile.phone,
+      centerEmail: centerProfile.email,
+      centerWebsite: centerProfile.website,
+      centerAddress: centerProfile.address,
+      sig1_name: centerProfile.signatures[0].name,
+      sig1_degree: centerProfile.signatures[0].degree,
+      sig1_sign: centerProfile.signatures[0].sign,
+      sig2_name: centerProfile.signatures[1].name,
+      sig2_degree: centerProfile.signatures[1].degree,
+      sig2_sign: centerProfile.signatures[1].sign,
+      sig3_name: centerProfile.signatures[2].name,
+      sig3_degree: centerProfile.signatures[2].degree,
+      sig3_sign: centerProfile.signatures[2].sign,
     };
 
-    let finalHTML = templateHTML;
+    // 3. Flatten data for easy replacement
+    const flatData = {
+      ...data.patientData,
+      ...profileMap,
+      reportText: findingsHTML, // Injected as structured HTML
+      impression: data.impression
+    };
     
     // Replace known keys
     Object.keys(flatData).forEach(key => {
@@ -217,8 +285,59 @@ const CreateReport = () => {
     html2pdf().set(opt).from(element).save();
   };
 
+
   return (
     <div className="fade-in" style={{ display: 'flex', gap: '32px', height: 'calc(100vh - 120px)' }}>
+      {/* Profile Modal */}
+      {showProfileModal && (
+        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.7)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyCenter: 'center', padding: '20px' }}>
+          <div style={{ background: 'white', padding: '32px', borderRadius: '16px', maxWidth: '600px', width: '100%', maxHeight: '90vh', overflowY: 'auto', boxShadow: '0 25px 50px -12px rgba(0,0,0,0.5)' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
+              <h2 style={{ margin: 0, color: '#1e3a8a' }}>Center Profile (SaaS Mock)</h2>
+              <button onClick={() => setShowProfileModal(false)} style={{ background: 'none', border: 'none', fontSize: '24px', cursor: 'pointer' }}>×</button>
+            </div>
+            
+            <div style={{ display: 'grid', gap: '16px' }}>
+              <div>
+                <label style={{ display: 'block', fontSize: '12px', fontWeight: 'bold', marginBottom: '4px' }}>Center Name</label>
+                <input name="name" value={centerProfile.name} onChange={handleProfileChange} style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #ddd' }} />
+              </div>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+                <div>
+                  <label style={{ display: 'block', fontSize: '12px', fontWeight: 'bold', marginBottom: '4px' }}>Tagline</label>
+                  <input name="tagline" value={centerProfile.tagline} onChange={handleProfileChange} style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #ddd' }} />
+                </div>
+                <div>
+                  <label style={{ display: 'block', fontSize: '12px', fontWeight: 'bold', marginBottom: '4px' }}>Slogan</label>
+                  <input name="slogan" value={centerProfile.slogan} onChange={handleProfileChange} style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #ddd' }} />
+                </div>
+              </div>
+              <div>
+                <label style={{ display: 'block', fontSize: '12px', fontWeight: 'bold', marginBottom: '4px' }}>Contact Phone</label>
+                <input name="phone" value={centerProfile.phone} onChange={handleProfileChange} style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #ddd' }} />
+              </div>
+              <div>
+                <label style={{ display: 'block', fontSize: '12px', fontWeight: 'bold', marginBottom: '4px' }}>Address</label>
+                <input name="address" value={centerProfile.address} onChange={handleProfileChange} style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #ddd' }} />
+              </div>
+              
+              <h3 style={{ marginTop: '20px', marginBottom: '8px', fontSize: '16px' }}>Doctor Signatures</h3>
+              {centerProfile.signatures.map((sig, i) => (
+                <div key={i} style={{ padding: '12px', background: '#f8fafc', borderRadius: '8px', marginBottom: '10px' }}>
+                  <label style={{ display: 'block', fontSize: '11px', fontWeight: 'bold' }}>Dr. {i+1} Name & Degree</label>
+                  <input value={sig.name} onChange={(e) => handleSignatureChange(i, 'name', e.target.value)} style={{ width: '100%', padding: '6px', marginBottom: '4px' }} />
+                  <input value={sig.degree} onChange={(e) => handleSignatureChange(i, 'degree', e.target.value)} style={{ width: '100%', padding: '6px' }} />
+                </div>
+              ))}
+            </div>
+            
+            <button onClick={() => setShowProfileModal(false)} style={{ width: '100%', padding: '14px', background: '#1e3a8a', color: 'white', borderRadius: '12px', border: 'none', fontWeight: 'bold', cursor: 'pointer', marginTop: '24px' }}>
+              Save & Apply Globally
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* Left Column - Voice Input */}
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '20px', minWidth: '400px', height: '100%' }}>
         <div className="glass-panel" style={{ padding: '24px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', flex: '0 0 auto' }}>
@@ -298,6 +417,13 @@ const CreateReport = () => {
           </div>
 
           <div style={{ display: 'flex', gap: '12px', width: '100%' }}>
+            <button 
+              onClick={() => setShowProfileModal(true)}
+              style={{ padding: '12px', background: 'rgba(56, 139, 253, 0.1)', color: 'var(--primary)', borderRadius: '12px', border: '1px solid var(--primary)', fontWeight: 'bold', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+              title="Center Profile Settings"
+            >
+              <Settings size={18} />
+            </button>
             <button 
               onClick={toggleRecording} 
               className={`btn ${isRecording ? 'btn-danger' : 'btn-primary'}`}
@@ -412,18 +538,18 @@ const CreateReport = () => {
           </button>
         </div>
 
-        <div style={{ flex: 1, overflowY: 'auto', backgroundColor: '#e2e8f0', padding: '32px' }}>
+        <div style={{ flex: 1, overflowY: 'auto', backgroundColor: '#cbd5e1', padding: '40px', display: 'flex', justifyContent: 'center' }}>
           {!filledHTML && !isProcessing && (
-            <div style={{ height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', color: '#64748b' }}>
+            <div style={{ height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', color: '#475569' }}>
               <FileCheck size={48} style={{ marginBottom: '16px', opacity: 0.5 }} />
-              <p>Generate a report to see the rendered preview.</p>
+              <p>Generate a report to see the elite medical preview.</p>
             </div>
           )}
           
           {isProcessing && (
-            <div style={{ height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', color: '#64748b' }}>
-               <h3 style={{ color: 'var(--primary)', marginBottom: '16px' }}>AI Magic at work...</h3>
-               <p>Extracting medical payload and formatting template.</p>
+            <div style={{ height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', color: '#1e3a8a' }}>
+               <h3 style={{ marginBottom: '16px' }}>Processing Elite Findings...</h3>
+               <p>Transcribing as a 25-yr medical typist expert.</p>
             </div>
           )}
 
@@ -433,14 +559,11 @@ const CreateReport = () => {
               ref={reportRef}
               style={{
                 backgroundColor: '#fff',
-                color: '#000',
-                padding: '40px',
-                minHeight: '842px', // A4 approximate
-                boxShadow: '0 10px 30px rgba(0,0,0,0.1)',
-                fontFamily: 'serif',
-                lineHeight: '1.6',
-                borderRadius: '4px'
-                // This div handles the PDF export styling natively.
+                width: '800px',
+                minHeight: '1120px',
+                boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
+                borderRadius: '2px',
+                transformOrigin: 'top center'
               }}
               dangerouslySetInnerHTML={{ __html: filledHTML }}
             />
