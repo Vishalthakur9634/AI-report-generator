@@ -162,13 +162,20 @@ const CreateReport = () => {
       }
     } catch (error) {
       console.error("Detailed failure:", error);
-      const urlUsed = import.meta.env.VITE_API_URL || 'MISSING';
-      alert(`Connection Error: Could not reach the AI backend.\n\n` +
-            `DEVOPS INFO:\n` +
-            `- Attempted Base URL: ${urlUsed}\n` +
-            `- Full Path: ${urlUsed}/api/generate_report\n` +
-            `- Reason: ${error.message}\n\n` +
-            `FIX: If URL says 'MISSING', you must add VITE_API_URL to Netlify!`);
+      
+      // Explicitly check for 401 or token expired messages
+      if (error.message.includes("status 401") || error.message.toLowerCase().includes("token expired")) {
+        alert("⚠️ WARNING: Your HuggingFace API Token has expired or is invalid.\n\nPlease update your HUGGINGFACEHUB_API_TOKEN in your Render Dashboard settings and restart the server.");
+      } else if (error.message.includes("status 500")) {
+        alert("🚨 AI Processing Error: The AI model failed to generate a valid report.\n\n" + error.message);
+      } else {
+        const urlUsed = import.meta.env.VITE_API_URL || 'MISSING';
+        alert(`Connection Error: Could not reach the AI backend.\n\n` +
+              `DEVOPS INFO:\n` +
+              `- Attempted Base URL: ${urlUsed}\n` +
+              `- Reason: ${error.message}\n\n` +
+              `Note: Ensure your Render backend is live and CORS is updated.`);
+      }
     } finally {
       setIsProcessing(false);
     }
