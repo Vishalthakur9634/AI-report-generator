@@ -1,11 +1,8 @@
-import React, { useContext } from 'react';
+import React from 'react';
 import { NavLink } from 'react-router-dom';
-import { LayoutDashboard, FileText, Settings, LogOut, FilePlus } from 'lucide-react';
-import { AuthContext } from '../context/AuthContext';
+import { LayoutDashboard, FileText, FilePlus } from 'lucide-react';
 
 const Sidebar = () => {
-  const { logout, user } = useContext(AuthContext);
-
   const navItems = [
     { name: 'Dashboard', path: '/', icon: <LayoutDashboard size={20} /> },
     { name: 'Create Report', path: '/create-report', icon: <FilePlus size={20} /> },
@@ -59,23 +56,15 @@ const Sidebar = () => {
       </nav>
 
       <div style={{ padding: '24px', borderTop: '1px solid var(--glass-border)' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '20px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
           <div style={{ width: '40px', height: '40px', borderRadius: '50%', background: 'var(--primary)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 600 }}>
-            {user?.full_name ? user.full_name.charAt(0) : 'U'}
+            L
           </div>
           <div style={{ overflow: 'hidden' }}>
-            <div style={{ fontWeight: 500, fontSize: '0.9rem', whiteSpace: 'nowrap', textOverflow: 'ellipsis' }}>{user?.full_name}</div>
-            <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>{user?.role === 'admin' ? 'Center Admin' : 'User'}</div>
+            <div style={{ fontWeight: 500, fontSize: '0.9rem', whiteSpace: 'nowrap', textOverflow: 'ellipsis' }}>Local User</div>
+            <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>Admin</div>
           </div>
         </div>
-
-        <button 
-          onClick={logout}
-          className="btn btn-outline" 
-          style={{ width: '100%', justifyContent: 'flex-start', border: 'none', color: 'var(--danger)', background: 'rgba(239, 68, 68, 0.1)' }}
-        >
-          <LogOut size={18} /> Logout
-        </button>
       </div>
     </aside>
   );

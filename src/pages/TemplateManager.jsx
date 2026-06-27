@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { Upload, FileText, CheckCircle2, AlertCircle, Trash2 } from 'lucide-react';
-import { AuthContext } from '../context/AuthContext';
 import { API_URL } from '../services/api';
 
 
@@ -12,7 +11,6 @@ const TemplateManager = () => {
   const [isUploading, setIsUploading] = useState(false);
   const [message, setMessage] = useState('');
   
-  const { user } = useContext(AuthContext);
 
   useEffect(() => {
     fetchTemplates();
@@ -20,10 +18,7 @@ const TemplateManager = () => {
 
   const fetchTemplates = async () => {
     try {
-      const token = localStorage.getItem('token');
-      const response = await fetch(`${API_URL}/templates/`, {
-        headers: { 'Authorization': `Bearer ${token}` }
-      });
+      const response = await fetch(`${API_URL}/templates/`);
       if (response.ok) {
         const data = await response.json();
         setTemplates(data);
@@ -46,10 +41,8 @@ const TemplateManager = () => {
     formData.append('modality', modality);
 
     try {
-      const token = localStorage.getItem('token');
       const response = await fetch(`${API_URL}/templates/upload`, {
         method: 'POST',
-        headers: { 'Authorization': `Bearer ${token}` },
         body: formData,
       });
 
@@ -69,10 +62,8 @@ const TemplateManager = () => {
   const handleDelete = async (id) => {
     if (!window.confirm('Are you sure you want to delete this template?')) return;
     try {
-      const token = localStorage.getItem('token');
       const response = await fetch(`${API_URL}/templates/${id}`, {
-        method: 'DELETE',
-        headers: { 'Authorization': `Bearer ${token}` }
+        method: 'DELETE'
       });
       
       if (!response.ok) {

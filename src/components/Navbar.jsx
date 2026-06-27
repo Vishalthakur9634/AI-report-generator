@@ -1,10 +1,7 @@
-import React, { useContext } from 'react';
+import React from 'react';
 import { Bell, Search } from 'lucide-react';
-import { AuthContext } from '../context/AuthContext';
 
 const Navbar = () => {
-  const { user } = useContext(AuthContext);
-
   return (
     <header style={{
       display: 'flex',
@@ -53,7 +50,7 @@ const Navbar = () => {
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px', background: 'rgba(255,255,255,0.03)', padding: '8px 16px', borderRadius: 'var(--radius-lg)', border: '1px solid var(--border-color)' }}>
           <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>Center ID:</div>
           <div style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--primary-hover)' }}>
-            {user?.center_id ? user.center_id.substring(0, 8).toUpperCase() : 'N/A'}
+            DEFAULT
           </div>
         </div>
       </div>

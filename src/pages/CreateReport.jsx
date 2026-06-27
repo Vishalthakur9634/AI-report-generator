@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { Mic, FileText, ArrowRight, Download, CheckCircle2, Activity } from 'lucide-react';
-import { AuthContext } from '../context/AuthContext';
 import { API_URL } from '../services/api';
 
 
@@ -18,10 +17,7 @@ const CreateReport = () => {
 
   const fetchTemplates = async () => {
     try {
-      const token = localStorage.getItem('token');
-      const response = await fetch(`${API_URL}/templates/`, {
-        headers: { 'Authorization': `Bearer ${token}` }
-      });
+      const response = await fetch(`${API_URL}/templates/`);
       if (response.ok) {
         const data = await response.json();
         setTemplates(data);
@@ -45,12 +41,10 @@ const CreateReport = () => {
     setResult(null);
 
     try {
-      const token = localStorage.getItem('token');
       const response = await fetch(`${API_URL}/reports/generate`, {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
+          'Content-Type': 'application/json'
         },
         body: JSON.stringify({
           template_id: selectedTemplate,
@@ -76,12 +70,7 @@ const CreateReport = () => {
     if (!result || !result.file_id) return;
     
     try {
-      const token = localStorage.getItem('token');
-      const response = await fetch(`${API_URL}/reports/download/${result.file_id}`, {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      });
+      const response = await fetch(`${API_URL}/reports/download/${result.file_id}`);
       
       if (!response.ok) throw new Error('Download failed');
       

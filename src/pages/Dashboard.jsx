@@ -1,6 +1,5 @@
 import React, { useContext } from 'react';
 import { Activity, Users, FileText, TrendingUp, Clock, FileCheck } from 'lucide-react';
-import { AuthContext } from '../context/AuthContext';
 
 const StatCard = ({ title, value, icon, trend, isPositive }) => (
   <div className="glass-card">
@@ -24,14 +23,13 @@ const StatCard = ({ title, value, icon, trend, isPositive }) => (
 );
 
 const Dashboard = () => {
-  const { user } = useContext(AuthContext);
 
   return (
     <div className="fade-in">
       <div className="page-header">
         <div>
           <h1 className="page-title">Center Overview</h1>
-          <div className="page-subtitle">Welcome back, {user?.full_name}. Here's what's happening today.</div>
+          <div className="page-subtitle">Welcome back, User. Here's what's happening today.</div>
         </div>
       </div>
 
