@@ -1,131 +1,80 @@
-import React from 'react';
-import { NavLink, useLocation, useNavigate } from 'react-router-dom';
-import { 
-  LayoutDashboard, 
-  FileText, 
-  Settings, 
-  LogOut,
-  Stethoscope
-} from 'lucide-react';
+import React, { useContext } from 'react';
+import { NavLink } from 'react-router-dom';
+import { LayoutDashboard, FileText, Settings, LogOut, FilePlus } from 'lucide-react';
+import { AuthContext } from '../context/AuthContext';
 
 const Sidebar = () => {
-  const location = useLocation();
-  const navigate = useNavigate();
-  
-  // Hide sidebar on auth pages
-  if (['/login', '/register'].includes(location.pathname)) {
-    return null;
-  }
-
-  const handleLogout = () => {
-    // Basic logout handling for now
-    navigate('/login');
-  };
+  const { logout, user } = useContext(AuthContext);
 
   const navItems = [
-    { path: '/', label: 'Dashboard', icon: LayoutDashboard },
-    { path: '/create-report', label: 'Create Report', icon: Stethoscope },
-    { path: '/templates', label: 'Manage Templates', icon: Settings },
+    { name: 'Dashboard', path: '/', icon: <LayoutDashboard size={20} /> },
+    { name: 'Create Report', path: '/create-report', icon: <FilePlus size={20} /> },
+    { name: 'Templates', path: '/templates', icon: <FileText size={20} /> },
   ];
 
   return (
     <aside style={{
-      width: '260px',
-      position: 'fixed',
-      top: 0,
-      left: 0,
+      width: '280px',
       height: '100vh',
-      backgroundColor: 'rgba(22, 27, 34, 0.8)',
+      position: 'fixed',
+      left: 0,
+      top: 0,
+      background: 'var(--bg-surface)',
       backdropFilter: 'blur(16px)',
-      borderRight: '1px solid var(--border-color)',
+      borderRight: '1px solid var(--glass-border)',
       display: 'flex',
       flexDirection: 'column',
-      padding: '24px 0',
-      zIndex: 100
+      padding: '24px 0'
     }}>
-      <div style={{ padding: '0 24px', marginBottom: '40px', display: 'flex', alignItems: 'center', gap: '12px' }}>
-        <div style={{
-          width: '36px',
-          height: '36px',
-          borderRadius: '8px',
-          background: 'linear-gradient(135deg, var(--primary) 0%, #3182ce 100%)',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          color: 'white'
-        }}>
-          <FileText size={20} />
-        </div>
-        <h2 style={{ fontSize: '1.25rem', color: '#fff', margin: 0 }}>MedVoice UI</h2>
+      <div style={{ padding: '0 24px', marginBottom: '40px' }}>
+        <h2 style={{ fontSize: '1.5rem', background: 'linear-gradient(90deg, #FFFFFF, var(--primary))', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
+          AI Radiology
+        </h2>
+        <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginTop: '4px' }}>Enterprise SaaS</div>
       </div>
 
       <nav style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '8px', padding: '0 16px' }}>
-        {navItems.map((item) => {
-          const isActive = location.pathname === item.path;
-          const Icon = item.icon;
-          
-          return (
-            <NavLink
-              key={item.path}
-              to={item.path}
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '12px',
-                padding: '12px 16px',
-                borderRadius: '12px',
-                color: isActive ? '#fff' : 'var(--text-muted)',
-                backgroundColor: isActive ? 'rgba(88, 166, 255, 0.1)' : 'transparent',
-                border: isActive ? '1px solid rgba(88, 166, 255, 0.2)' : '1px solid transparent',
-                textDecoration: 'none',
-                fontWeight: isActive ? 600 : 400,
-                transition: 'var(--transition)',
-                boxShadow: isActive ? '0 4px 12px rgba(88, 166, 255, 0.1)' : 'none',
-                position: 'relative'
-              }}
-            >
-              {isActive && (
-                <div style={{
-                  position: 'absolute',
-                  left: '-16px',
-                  width: '4px',
-                  height: '24px',
-                  backgroundColor: 'var(--primary)',
-                  borderRadius: '0 4px 4px 0',
-                  boxShadow: '0 0 10px var(--primary)'
-                }}></div>
-              )}
-              <Icon size={18} color={isActive ? 'var(--primary)' : 'currentColor'} />
-              {item.label}
-            </NavLink>
-          );
-        })}
+        {navItems.map((item) => (
+          <NavLink
+            key={item.path}
+            to={item.path}
+            style={({ isActive }) => ({
+              display: 'flex',
+              alignItems: 'center',
+              gap: '12px',
+              padding: '12px 16px',
+              borderRadius: 'var(--radius-md)',
+              color: isActive ? '#fff' : 'var(--text-muted)',
+              background: isActive ? 'linear-gradient(90deg, rgba(59, 130, 246, 0.15), transparent)' : 'transparent',
+              borderLeft: isActive ? '3px solid var(--primary)' : '3px solid transparent',
+              textDecoration: 'none',
+              fontWeight: isActive ? 500 : 400,
+              transition: 'var(--transition)',
+            })}
+          >
+            {item.icon}
+            {item.name}
+          </NavLink>
+        ))}
       </nav>
 
-      <div style={{ padding: '0 16px', marginTop: 'auto' }}>
+      <div style={{ padding: '24px', borderTop: '1px solid var(--glass-border)' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '20px' }}>
+          <div style={{ width: '40px', height: '40px', borderRadius: '50%', background: 'var(--primary)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 600 }}>
+            {user?.full_name ? user.full_name.charAt(0) : 'U'}
+          </div>
+          <div style={{ overflow: 'hidden' }}>
+            <div style={{ fontWeight: 500, fontSize: '0.9rem', whiteSpace: 'nowrap', textOverflow: 'ellipsis' }}>{user?.full_name}</div>
+            <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>{user?.role === 'admin' ? 'Center Admin' : 'User'}</div>
+          </div>
+        </div>
+
         <button 
-          onClick={handleLogout}
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: '12px',
-            padding: '12px 16px',
-            width: '100%',
-            backgroundColor: 'transparent',
-            border: 'none',
-            color: 'var(--danger)',
-            cursor: 'pointer',
-            borderRadius: '8px',
-            transition: 'var(--transition)',
-            textAlign: 'left',
-            fontFamily: 'inherit',
-            fontSize: '0.95rem'
-          }}
-          onMouseOver={(e) => e.currentTarget.style.backgroundColor = 'rgba(218, 54, 51, 0.1)'}
-          onMouseOut={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
+          onClick={logout}
+          className="btn btn-outline" 
+          style={{ width: '100%', justifyContent: 'flex-start', border: 'none', color: 'var(--danger)', background: 'rgba(239, 68, 68, 0.1)' }}
         >
-          <LogOut size={18} />
-          Logout
+          <LogOut size={18} /> Logout
         </button>
       </div>
     </aside>

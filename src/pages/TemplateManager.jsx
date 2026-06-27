@@ -1,225 +1,255 @@
-import React, { useState, useEffect } from 'react';
-import { Save, FileCheck, Code, Plus, Trash2, Edit3, Check, RefreshCw } from 'lucide-react';
-import { defaultTemplates } from '../data/defaultTemplates';
+import React, { useState, useEffect, useContext } from 'react';
+import { Upload, FileText, CheckCircle2, AlertCircle, Trash2 } from 'lucide-react';
+import { AuthContext } from '../context/AuthContext';
+import { API_URL } from '../services/api';
+
 
 const TemplateManager = () => {
   const [templates, setTemplates] = useState([]);
-  const [activeTemplateId, setActiveTemplateId] = useState(null);
-  const [editingTemplate, setEditingTemplate] = useState({ name: '', html: '' });
-  const [saved, setSaved] = useState(false);
-  const [isAdding, setIsAdding] = useState(false);
-
+  const [file, setFile] = useState(null);
+  const [name, setName] = useState('');
+  const [modality, setModality] = useState('USG');
+  const [isUploading, setIsUploading] = useState(false);
+  const [message, setMessage] = useState('');
+  
+  const { user } = useContext(AuthContext);
 
   useEffect(() => {
-    const savedTemplates = localStorage.getItem('medvoice_templates');
-    if (savedTemplates) {
-      const parsed = JSON.parse(savedTemplates);
-      setTemplates(parsed);
-      if (parsed.length > 0) {
-        setActiveTemplateId(parsed[0].id);
-        setEditingTemplate({ name: parsed[0].name, html: parsed[0].html });
-      }
-    } else {
-      localStorage.setItem('medvoice_templates', JSON.stringify(defaultTemplates));
-      setTemplates(defaultTemplates);
-      setActiveTemplateId(defaultTemplates[0].id);
-      setEditingTemplate({ name: defaultTemplates[0].name, html: defaultTemplates[0].html });
-    }
+    fetchTemplates();
   }, []);
 
-  const handleSave = () => {
-    const updated = templates.map(t => 
-      t.id === activeTemplateId ? { ...t, name: editingTemplate.name, html: editingTemplate.html } : t
-    );
-    setTemplates(updated);
-    localStorage.setItem('medvoice_templates', JSON.stringify(updated));
-    setSaved(true);
-    setTimeout(() => setSaved(false), 3000);
-  };
-
-  const handleAddTemplate = () => {
-    const newId = 'temp-' + Date.now();
-    const newTemplate = {
-      id: newId,
-      name: 'New Custom Template',
-      html: defaultTemplates[0].html
-    };
-    const updated = [...templates, newTemplate];
-    setTemplates(updated);
-    localStorage.setItem('medvoice_templates', JSON.stringify(updated));
-    setActiveTemplateId(newId);
-    setEditingTemplate({ name: newTemplate.name, html: newTemplate.html });
-    setIsAdding(false);
-  };
-
-  const handleDelete = (id) => {
-    if (templates.length <= 1) {
-      alert("At least one template must remain.");
-      return;
-    }
-    if (window.confirm("Delete this template?")) {
-      const updated = templates.filter(t => t.id !== id);
-      setTemplates(updated);
-      localStorage.setItem('medvoice_templates', JSON.stringify(updated));
-      if (activeTemplateId === id) {
-        setActiveTemplateId(updated[0].id);
-        setEditingTemplate({ name: updated[0].name, html: updated[0].html });
+  const fetchTemplates = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      const response = await fetch(`${API_URL}/templates/`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      if (response.ok) {
+        const data = await response.json();
+        setTemplates(data);
       }
+    } catch (error) {
+      console.error('Failed to fetch templates:', error);
     }
   };
 
-  const handleReset = () => {
-    if (window.confirm("This will replace all your current templates with the professional defaults. Continue?")) {
-      localStorage.setItem('medvoice_templates', JSON.stringify(defaultTemplates));
-      setTemplates(defaultTemplates);
-      setActiveTemplateId(defaultTemplates[0].id);
-      setEditingTemplate({ name: defaultTemplates[0].name, html: defaultTemplates[0].html });
+  const handleUpload = async (e) => {
+    e.preventDefault();
+    if (!file) return;
+
+    setIsUploading(true);
+    setMessage('');
+
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('name', name);
+    formData.append('modality', modality);
+
+    try {
+      const token = localStorage.getItem('token');
+      const response = await fetch(`${API_URL}/templates/upload`, {
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${token}` },
+        body: formData,
+      });
+
+      if (!response.ok) throw new Error('Upload failed');
+      
+      setMessage({ type: 'success', text: 'Template uploaded successfully!' });
+      setFile(null);
+      setName('');
+      fetchTemplates();
+    } catch (error) {
+      setMessage({ type: 'error', text: error.message });
+    } finally {
+      setIsUploading(false);
     }
   };
 
-  const selectTemplate = (t) => {
-    setActiveTemplateId(t.id);
-    setEditingTemplate({ name: t.name, html: t.html });
+  const handleDelete = async (id) => {
+    if (!window.confirm('Are you sure you want to delete this template?')) return;
+    try {
+      const token = localStorage.getItem('token');
+      const response = await fetch(`${API_URL}/templates/${id}`, {
+        method: 'DELETE',
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      
+      if (!response.ok) {
+        const errData = await response.json().catch(() => ({}));
+        throw new Error(errData.detail || 'Failed to delete template');
+      }
+
+      setMessage({ type: 'success', text: 'Template deleted successfully!' });
+      fetchTemplates();
+    } catch (error) {
+      setMessage({ type: 'error', text: error.message });
+    }
   };
 
   return (
-    <div className="fade-in" style={{ maxWidth: '1200px', margin: '0 auto' }}>
-      <div style={{ display: 'flex', gap: '32px' }}>
-        {/* Left Sidebar - Template List */}
-        <div style={{ width: '300px' }}>
-          <div className="glass-panel" style={{ padding: '24px', height: 'fit-content' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-              <h3 style={{ fontSize: '1.2rem', margin: 0 }}>My Templates</h3>
-              <button onClick={handleAddTemplate} className="btn btn-primary" style={{ padding: '8px', borderRadius: '50%' }} title="Add Template">
-                <Plus size={18} />
-              </button>
-            </div>
-            
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-              {templates.map(t => (
-                <div 
-                  key={t.id}
-                  onClick={() => selectTemplate(t)}
-                  style={{
-                    padding: '12px 16px',
-                    borderRadius: '8px',
-                    cursor: 'pointer',
-                    backgroundColor: activeTemplateId === t.id ? 'rgba(88, 166, 255, 0.1)' : 'transparent',
-                    border: activeTemplateId === t.id ? '1px solid var(--primary)' : '1px solid var(--border-color)',
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    alignItems: 'center',
-                    transition: 'var(--transition)'
-                  }}
-                >
-                  <span style={{ fontSize: '0.95rem', fontWeight: activeTemplateId === t.id ? 600 : 400 }}>{t.name}</span>
-                  {activeTemplateId === t.id && (
-                    <div style={{ display: 'flex', gap: '8px' }}>
-                      <Trash2 size={16} color="var(--danger)" onClick={(e) => { e.stopPropagation(); handleDelete(t.id); }} />
-                    </div>
-                  )}
-                </div>
-              ))}
-            </div>
-          </div>
+    <div className="fade-in">
+      <div className="page-header">
+        <div>
+          <h1 className="page-title">Template Manager</h1>
+          <div className="page-subtitle">Upload and manage your center's exact `.docx` letterheads</div>
         </div>
+      </div>
 
-        {/* Right Area - Editor */}
-        <div style={{ flex: 1 }}>
-          <div className="glass-panel" style={{ padding: '32px' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
-              <div style={{ flex: 1 }}>
-                <input 
-                  value={editingTemplate.name}
-                  onChange={(e) => setEditingTemplate(prev => ({ ...prev, name: e.target.value }))}
-                  style={{
-                    backgroundColor: 'transparent',
-                    border: 'none',
-                    borderBottom: '1px solid var(--border-color)',
-                    fontSize: '1.5rem',
-                    fontWeight: 600,
-                    color: '#fff',
-                    width: '100%',
-                    padding: '8px 0',
-                    outline: 'none',
-                    marginBottom: '8px'
-                  }}
-                />
-                <p style={{ color: 'var(--text-muted)' }}>Customize your center's header, layout, and styling.</p>
-              </div>
-              <button 
-                onClick={handleSave} 
-                className={saved ? "btn btn-success" : "btn btn-primary"}
-                style={{ padding: '12px 24px', marginLeft: '24px' }}
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', gap: '32px' }}>
+        
+        {/* Upload Form */}
+        <div className="glass-card">
+          <h3 style={{ marginBottom: '24px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <Upload size={20} color="var(--primary)" /> Upload New Template
+          </h3>
+
+          {message && (
+            <div style={{ 
+              padding: '12px', 
+              borderRadius: '8px', 
+              background: message.type === 'success' ? 'rgba(16, 185, 129, 0.1)' : 'rgba(239, 68, 68, 0.1)', 
+              color: message.type === 'success' ? 'var(--success)' : 'var(--danger)',
+              marginBottom: '20px',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px'
+            }}>
+              {message.type === 'success' ? <CheckCircle2 size={16} /> : <AlertCircle size={16} />}
+              {message.text}
+            </div>
+          )}
+
+          <form onSubmit={handleUpload}>
+            <div style={{ marginBottom: '20px' }}>
+              <label className="input-label">Template Name</label>
+              <input 
+                type="text" 
+                className="input-field" 
+                placeholder="e.g. Standard USG Abdomen" 
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                required
+              />
+            </div>
+
+            <div style={{ marginBottom: '20px' }}>
+              <label className="input-label">Modality</label>
+              <select 
+                className="input-field" 
+                value={modality}
+                onChange={(e) => setModality(e.target.value)}
               >
-                {saved ? <><Check size={18} /> Saved!</> : <><Save size={18} /> Update Template</>}
-              </button>
+                <option value="USG">USG</option>
+                <option value="X-RAY">X-RAY</option>
+                <option value="CT/MRI">CT / MRI</option>
+                <option value="DOPPLER">Doppler</option>
+              </select>
             </div>
 
-            <div style={{ display: 'flex', gap: '24px' }}>
-              <div style={{ flex: 2 }}>
-                <div style={{ 
-                  backgroundColor: 'rgba(1, 4, 9, 0.5)', 
-                  border: '1px solid var(--border-color)', 
-                  borderTopLeftRadius: 'var(--radius-md)',
-                  borderTopRightRadius: 'var(--radius-md)',
-                  padding: '12px 16px',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '8px',
-                  borderBottom: 'none'
-                }}>
-                  <Code size={16} color="var(--primary)" />
-                  <span style={{ fontSize: '0.9rem', fontWeight: 500 }}>HTML Template Editor</span>
+            <div style={{ marginBottom: '24px' }}>
+              <label className="input-label">Select .DOCX File</label>
+              <div style={{ 
+                border: '2px dashed var(--border-color)', 
+                padding: '32px', 
+                textAlign: 'center', 
+                borderRadius: 'var(--radius-md)',
+                background: 'rgba(0,0,0,0.2)',
+                cursor: 'pointer',
+                transition: 'var(--transition)'
+              }}
+              onMouseEnter={(e) => e.currentTarget.style.borderColor = 'var(--primary)'}
+              onMouseLeave={(e) => e.currentTarget.style.borderColor = 'var(--border-color)'}
+              onClick={() => document.getElementById('file-upload').click()}
+              >
+                <FileText size={32} color={file ? 'var(--success)' : 'var(--text-muted)'} style={{ marginBottom: '12px' }} />
+                <div style={{ color: file ? '#fff' : 'var(--text-muted)', fontSize: '0.9rem' }}>
+                  {file ? file.name : 'Click to select or drag and drop'}
                 </div>
-                <textarea
-                  value={editingTemplate.html}
-                  onChange={(e) => setEditingTemplate(prev => ({ ...prev, html: e.target.value }))}
-                  style={{
-                    width: '100%',
-                    height: '500px',
-                    backgroundColor: 'rgba(1, 4, 9, 0.5)',
-                    color: '#e6edf3',
-                    fontFamily: 'monospace',
-                    fontSize: '14px',
-                    padding: '16px',
-                    border: '1px solid var(--border-color)',
-                    borderBottomLeftRadius: 'var(--radius-md)',
-                    borderBottomRightRadius: 'var(--radius-md)',
-                    resize: 'vertical',
-                    outline: 'none',
-                    lineHeight: '1.5'
-                  }}
+                <input 
+                  id="file-upload"
+                  type="file" 
+                  accept=".docx" 
+                  style={{ display: 'none' }}
+                  onChange={(e) => setFile(e.target.files[0])}
+                  required
                 />
               </div>
-
-              <div style={{ flex: 1 }}>
-                <div className="glass-card" style={{ padding: '20px', backgroundColor: 'transparent', border: '1px solid var(--border-color)' }}>
-                  <h3 style={{ fontSize: '1.1rem', marginBottom: '16px' }}>Template Help</h3>
-                  <p style={{ fontSize: '0.9rem', color: 'var(--text-muted)', marginBottom: '16px' }}>
-                    Supported placeholders:
-                  </p>
-                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
-                    {['patient_name', 'age', 'sex', 'ref_doctor', 'date', 'study', 'reportText', 'impression'].map(v => (
-                      <code key={v} style={{ 
-                        padding: '4px 8px', 
-                        backgroundColor: 'rgba(56, 139, 253, 0.1)', 
-                        color: 'var(--primary)',
-                        borderRadius: '4px',
-                        fontSize: '0.8rem'
-                      }}>{`{{${v}}}`}</code>
-                    ))}
-                  </div>
-                  <div style={{ marginTop: '24px', padding: '12px', backgroundColor: 'rgba(255, 165, 0, 0.1)', borderRadius: '8px', border: '1px solid rgba(255, 165, 0, 0.2)' }}>
-                    <p style={{ fontSize: '0.85rem', color: '#f0883e', margin: 0 }}>
-                      <strong>Tip:</strong> Use inline CSS styles for best PDF rendering results.
-                    </p>
-                  </div>
-                </div>
-              </div>
             </div>
+
+            <button type="submit" className="btn btn-primary" style={{ width: '100%' }} disabled={isUploading || !file}>
+              {isUploading ? 'Uploading...' : 'Upload to SaaS Cloud'}
+            </button>
+          </form>
+        </div>
+
+        {/* Template List */}
+        <div>
+          <div className="glass-panel" style={{ padding: '24px', minHeight: '400px' }}>
+            <h3 style={{ marginBottom: '24px' }}>Active Templates</h3>
+            
+            {templates.length === 0 ? (
+              <div style={{ textAlign: 'center', padding: '60px 20px', color: 'var(--text-muted)' }}>
+                <FileText size={48} style={{ opacity: 0.2, margin: '0 auto 16px' }} />
+                <p>No templates uploaded yet. Upload your first .docx letterhead.</p>
+              </div>
+            ) : (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                {templates.map(t => (
+                  <div key={t._id} style={{ 
+                    display: 'flex', 
+                    justifyContent: 'space-between', 
+                    alignItems: 'center', 
+                    padding: '16px', 
+                    background: 'rgba(255,255,255,0.02)', 
+                    border: '1px solid var(--glass-border)',
+                    borderRadius: 'var(--radius-md)',
+                    transition: 'var(--transition)'
+                  }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+                      <div style={{ padding: '10px', background: 'rgba(59, 130, 246, 0.1)', borderRadius: '10px', color: 'var(--primary)' }}>
+                        <FileText size={20} />
+                      </div>
+                      <div>
+                        <div style={{ fontWeight: 600, fontSize: '1.05rem' }}>{t.name}</div>
+                        <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)', display: 'flex', gap: '12px', marginTop: '4px' }}>
+                          <span style={{ background: 'rgba(255,255,255,0.05)', padding: '2px 8px', borderRadius: '4px' }}>{t.modality}</span>
+                          <span>{t.detected_tags?.length || 0} Auto-Tags Detected</span>
+                        </div>
+                      </div>
+                    </div>
+                    <div style={{ display: 'flex', gap: '10px' }}>
+                      <button className="btn btn-outline" style={{ padding: '8px 16px', fontSize: '0.85rem' }}>
+                        Preview Layout
+                      </button>
+                      <button 
+                        className="btn" 
+                        onClick={() => handleDelete(t._id)}
+                        style={{ 
+                          padding: '8px', 
+                          background: 'rgba(239, 68, 68, 0.1)', 
+                          border: '1px solid rgba(239, 68, 68, 0.2)', 
+                          color: 'var(--danger)',
+                          borderRadius: '8px',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          cursor: 'pointer',
+                          transition: 'var(--transition)'
+                        }}
+                        onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(239, 68, 68, 0.2)'}
+                        onMouseLeave={(e) => e.currentTarget.style.background = 'rgba(239, 68, 68, 0.1)'}
+                      >
+                        <Trash2 size={16} />
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         </div>
+
       </div>
     </div>
   );
