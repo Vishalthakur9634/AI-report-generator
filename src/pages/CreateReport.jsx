@@ -10,6 +10,60 @@ const CreateReport = () => {
   const [isGenerating, setIsGenerating] = useState(false);
   const [result, setResult] = useState(null);
   const [error, setError] = useState('');
+  const [isListening, setIsListening] = useState(false);
+  const recognitionRef = React.useRef(null);
+
+  const toggleDictation = () => {
+    if (isListening) {
+      if (recognitionRef.current) {
+        recognitionRef.current.stop();
+      }
+      setIsListening(false);
+      return;
+    }
+
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SpeechRecognition) {
+      setError('Your browser does not support dictation. Please use Google Chrome or Edge.');
+      return;
+    }
+
+    const recognition = new SpeechRecognition();
+    recognition.continuous = true;
+    // Set interimResults to false to make it cleaner and only append final sentences
+    recognition.interimResults = false; 
+    recognition.lang = 'en-US';
+
+    recognition.onstart = () => setIsListening(true);
+    
+    recognition.onresult = (event) => {
+      for (let i = event.resultIndex; i < event.results.length; i++) {
+        if (event.results[i].isFinal) {
+          const newText = event.results[i][0].transcript.trim();
+          setTranscript((prev) => prev + (prev ? ' ' : '') + newText + '. ');
+        }
+      }
+    };
+
+    recognition.onerror = (event) => {
+      console.error('Speech recognition error', event.error);
+      if (event.error !== 'no-speech') {
+        setError('Microphone error: ' + event.error);
+      }
+      setIsListening(false);
+    };
+
+    recognition.onend = () => {
+      setIsListening(false);
+    };
+
+    try {
+      recognition.start();
+      recognitionRef.current = recognition;
+    } catch (err) {
+      console.error('Recognition start error:', err);
+    }
+  };
 
   useEffect(() => {
     fetchTemplates();
@@ -219,8 +273,30 @@ const CreateReport = () => {
           <div className="glass-card" style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
               <h3 style={{ fontSize: '1.1rem' }}>2. Input Medical Notes</h3>
-              <button className="btn btn-outline" style={{ padding: '6px 12px', fontSize: '0.85rem', color: 'var(--danger)', borderColor: 'rgba(239, 68, 68, 0.3)' }}>
-                <Mic size={14} /> Start Dictation
+              <button 
+                className="btn btn-outline" 
+                onClick={toggleDictation}
+                style={{ 
+                  padding: '6px 12px', 
+                  fontSize: '0.85rem', 
+                  color: isListening ? '#EF4444' : 'var(--danger)', 
+                  borderColor: isListening ? '#EF4444' : 'rgba(239, 68, 68, 0.3)',
+                  background: isListening ? 'rgba(239, 68, 68, 0.1)' : 'transparent',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '6px'
+                }}
+              >
+                {isListening ? (
+                  <>
+                    <div className="recording-indicator" style={{ width: '8px', height: '8px', background: '#EF4444' }}></div>
+                    Stop Dictation
+                  </>
+                ) : (
+                  <>
+                    <Mic size={14} /> Start Dictation
+                  </>
+                )}
               </button>
             </div>
             
