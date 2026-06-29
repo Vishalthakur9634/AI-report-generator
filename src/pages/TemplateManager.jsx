@@ -46,14 +46,24 @@ const TemplateManager = () => {
         body: formData,
       });
 
-      if (!response.ok) throw new Error('Upload failed');
+      if (!response.ok) {
+        const errorText = await response.text();
+        let errorMsg = 'Upload failed';
+        try {
+          const errData = JSON.parse(errorText);
+          errorMsg = errData.detail || errorText;
+        } catch (e) {
+          errorMsg = errorText;
+        }
+        throw new Error(errorMsg);
+      }
       
       setMessage({ type: 'success', text: 'Template uploaded successfully!' });
       setFile(null);
       setName('');
       fetchTemplates();
     } catch (error) {
-      setMessage({ type: 'error', text: error.message });
+      setMessage({ type: 'error', text: `Error: ${error.message}` });
     } finally {
       setIsUploading(false);
     }
